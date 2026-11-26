@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>버티는 구조의 비밀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f1d1a; --sub:#6d675c; --line:#e2dccf; --paper:#fffdf8; --soft:#f3eee3;
+  --accent:#2f5d8a; --accent-soft:#e6eef6; --comp:#d4480c; --tens:#3557c9; --ok:#2b8a3e; --gold:#b07d00;
+  --f-body:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  --f-display:"Noto Serif KR","Batang","AppleMyungjo",serif;
+  --f-num:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#16140f;overflow:hidden;font-family:var(--f-body);color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:0 0}
+.slide{position:absolute;inset:0;background:var(--paper);padding:70px 90px 60px;display:none;overflow:hidden}
+.slide.on{display:block}
+.kicker{font-size:21px;font-weight:700;color:var(--comp);letter-spacing:.14em;margin-bottom:12px}
+h1{font-family:var(--f-display);font-weight:900;font-size:60px;line-height:1.22;margin:0 0 18px;letter-spacing:-.01em}
+h2{font-family:var(--f-display);font-weight:900;font-size:46px;line-height:1.28;margin:0 0 28px;letter-spacing:-.01em}
+.slide.on{animation:sfade .35s ease}
+@keyframes sfade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.card{border:1px solid var(--line)}
+p,li{font-size:30px;line-height:1.55}
+.sub{color:var(--sub)}
+.small{font-size:22px;color:var(--sub);line-height:1.5}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.cols.l{grid-template-columns:1.25fr 1fr}
+.cols.r{grid-template-columns:1fr 1.25fr}
+.card{background:var(--soft);border-radius:22px;padding:28px 32px}
+.slide{background:var(--paper)}
+.card h3{font-size:30px;margin:0 0 10px}
+.card p,.card li{font-size:25px}
+.pill{display:inline-block;padding:6px 18px;border-radius:999px;background:var(--soft);color:var(--ink);border:1px solid var(--line);font-weight:700;font-size:22px}
+.c{color:var(--comp);font-weight:700} .t{color:var(--tens);font-weight:700}
+.frag{opacity:0;transform:translateY(10px);transition:opacity .35s,transform .35s}
+.frag.shown{opacity:1;transform:none}
+.big-q{font-size:40px;font-weight:700;line-height:1.45}
+button.ui{font:inherit;font-size:22px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:14px;padding:10px 22px;cursor:pointer;font-weight:700;transition:background .2s,color .2s}
+button.ui.on,button.ui:hover{background:var(--ink);color:var(--paper)}
+input[type=range]{width:100%;accent-color:var(--ink);height:28px}
+.slabel{display:flex;justify-content:space-between;font-size:24px;color:var(--sub);margin-bottom:4px}
+.slabel b{color:var(--ink)}
+table.t1{border-collapse:collapse;font-size:26px;width:100%}
+table.t1 th,table.t1 td{border-bottom:2px solid var(--line);padding:12px 14px;text-align:center}
+table.t1 th{color:var(--sub);font-weight:600}
+.hide-ans{color:transparent;background:#e9edf4;border-radius:8px}
+.footer{position:absolute;left:90px;right:90px;bottom:26px;display:flex;justify-content:space-between;font-size:18px;color:#9aa3b2}
+.legend{display:flex;gap:28px;font-size:24px;color:var(--sub)}
+.legend i{display:inline-block;width:36px;height:10px;border-radius:5px;vertical-align:middle;margin-right:8px}
+#progress{position:fixed;left:0;bottom:0;height:4px;background:var(--comp);transition:width .25s;z-index:5}
+#hud{position:fixed;right:14px;bottom:12px;color:#9aa3b2;font-size:13px;z-index:5;font-family:sans-serif}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:rgba(15,20,30,.94);color:#e8ecf3;font-size:17px;line-height:1.6;padding:14px 22px 22px;display:none;z-index:6}
+#notes b{color:#8fb4ff}
+.navzone{position:fixed;top:0;bottom:0;width:12%;z-index:4;cursor:pointer}
+#navL{left:0} #navR{right:0}
+.tabs{display:flex;gap:12px;margin-bottom:18px}
+svg text{font-family:Pretendard,"Malgun Gothic",sans-serif}
+.step{display:flex;gap:18px;align-items:flex-start;margin-bottom:16px}
+.step .n{flex:none;width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--paper);font-family:var(--f-num);font-weight:800;font-size:24px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+.step p{margin:0;font-size:26px;line-height:1.45}
+.warn{background:#fbf1d9;color:#6b4a00;border-left:5px solid #c99a1d;border-radius:16px;padding:16px 22px;font-size:23px;line-height:1.5}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:30px}
+.tl{border-radius:18px;padding:22px 20px;background:var(--soft);position:relative}
+.tl .min{font-size:22px;color:var(--comp);font-weight:700;font-family:var(--f-num)}
+.tl h4{font-size:28px;margin:6px 0 8px}
+.tl p{font-size:21px;margin:0;color:var(--sub);line-height:1.45}
+.mapping{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:16px 20px;align-items:center;font-size:28px}
+.mapping .k{font-weight:800}
+.mapping .arrow{color:#9aa3b2}
+.vidwrap{width:405px;height:720px;border-radius:24px;overflow:hidden;background:#000;position:relative;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.vidwrap iframe{width:100%;height:100%;border:0}
+.vidfallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:18px;text-align:center;padding:30px;font-size:22px;z-index:0}
+.vidwrap iframe{position:relative;z-index:1}
+a.yt{display:inline-flex;align-items:center;gap:10px;background:#ff0033;color:#fff;text-decoration:none;font-weight:800;border-radius:14px;padding:12px 22px;font-size:22px}
+.persp{perspective:1100px;height:380px;display:flex;align-items:flex-end;justify-content:center}
+.fall{transform-origin:50% 100%;animation:fall 3.2s ease-in infinite}
+@keyframes fall{0%,25%{transform:rotateX(0deg)}70%,100%{transform:rotateX(-82deg)}}
+.stand{transform:rotateX(14deg) rotateY(-28deg);transform-style:preserve-3d}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1. 표지 -->
+<section class="slide" data-note="<b>도입 (1분)</b> 인사와 강사 소개. 오늘은 '삼각형'이라는 수학 도형 하나로 무거운 무게를 버티는 구조를 설계합니다. 마지막에 실제로 추를 걸어 봅니다.">
+  <div style="position:absolute;right:-40px;bottom:40px;opacity:.95">
+    <svg width="900" height="420" viewBox="0 0 900 420" id="coverSvg"></svg>
+  </div>
+  <div style="margin-top:110px;max-width:880px">
+    <div class="kicker">2027 포천영재교육원 대면평가 수업 · 수학 × 과학</div>
+    <h1 style="font-size:84px">버티는 구조의 비밀</h1>
+    <p style="font-size:38px;margin:0" class="sub">삼각형으로 설계하는 <b style="color:var(--ink)">4D프레임 챌린지</b></p>
+    <div style="margin-top:46px;display:flex;gap:14px"><span class="pill">트러스 구조</span><span class="pill">압축력 · 인장력</span><span class="pill">설계 → 제작 → 측정</span></div>
+  </div>
+</section>
+
+<!-- 2. 영상 -->
+<section class="slide" data-note="<b>영상 (2분)</b> 영상을 보기 전에 질문 세 개를 먼저 읽어 주고, 보면서 답을 찾게 합니다. 영상이 재생되지 않으면 빨간 버튼으로 유튜브에서 엽니다. (인터넷 연결 필요)">
+  <div class="cols r" style="grid-template-columns:420px 1fr;gap:80px;align-items:start">
+    <div class="vidwrap">
+      <div class="vidfallback"><div>영상이 보이지 않으면<br>아래 버튼을 누르세요</div><a class="yt" href="https://youtube.com/shorts/CZoQLnakRLc" target="_blank" rel="noopener">▶ 유튜브에서 보기</a></div>
+      <iframe id="yt" data-src="https://www.youtube.com/embed/CZoQLnakRLc?rel=0&playsinline=1" title="스파게티면 다리 영상" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div style="padding-top:30px">
+      <div class="kicker">생각 열기</div>
+      <h2>스파게티면으로<br>다리를 만든다면?</h2>
+      <p class="sub" style="margin-top:-6px">영상을 보며 답을 찾아보세요.</p>
+      <div class="step frag"><div class="n">1</div><p>다리는 <b>어떤 모양</b>을 반복해서 만들었나요?</p></div>
+      <div class="step frag"><div class="n">2</div><p>무게를 걸었을 때 <b>어디가 먼저</b> 부러졌나요?</p></div>
+      <div class="step frag"><div class="n">3</div><p>같은 재료로 <b>더 많이 버티려면</b> 무엇을 바꿔야 할까요?</p></div>
+      <div style="margin-top:26px"><a class="yt" href="https://youtube.com/shorts/CZoQLnakRLc" target="_blank" rel="noopener">▶ 유튜브에서 열기</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 생활 속 트러스 -->
+<section class="slide" data-note="<b>생활 속 트러스 (1분)</b> 철교, 에펠탑, 지붕, 송전탑. 공통점을 물어보고 '삼각형이 반복된다'를 학생 입에서 나오게 한 뒤 다음 클릭으로 정리합니다.">
+  <div class="kicker">생활 속 구조물</div>
+  <h2>이 구조물들의 공통점은?</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:20px" id="lifeCards"></div>
+  <div class="frag" style="margin-top:34px;text-align:center"><span class="big-q">막대를 <span style="color:var(--accent)">삼각형</span>으로 엮은 구조 = <span style="color:var(--accent)">트러스(Truss)</span></span></div>
+</section>
+
+<!-- 4. 사각형 vs 삼각형 -->
+<section class="slide" data-note="<b>활동1 시작 (2분)</b> 4D프레임으로 만든 사각형 틀과 삼각형 틀을 학생에게 나눠 주고 직접 눌러 보게 합니다. 화면에서도 슬라이더로 옆에서 미는 힘을 키워 보여 줍니다.">
+  <div class="kicker">활동 1 · 직접 눌러 보기</div>
+  <h2>사각형 틀과 삼각형 틀, 옆에서 밀면?</h2>
+  <svg width="1420" height="460" viewBox="0 0 1420 460" id="pushSvg"></svg>
+  <div style="display:grid;grid-template-columns:1fr 260px;gap:40px;align-items:center;margin-top:6px">
+    <div><div class="slabel"><span>옆에서 미는 힘</span><b id="pushVal">0</b></div><input type="range" id="push" min="0" max="100" value="0"></div>
+    <button class="ui" id="pushAuto">▶ 자동으로 밀기</button>
+  </div>
+</section>
+
+<!-- 5. 왜 삼각형? -->
+<section class="slide" data-note="<b>수학적 이유 (1분 30초)</b> 네 변의 길이가 같아도 사각형은 모양이 계속 바뀐다(왼쪽 애니메이션). 삼각형은 세 변의 길이가 정해지면 SSS 합동에 의해 모양이 하나뿐이다. 파이프 길이는 변하지 않으므로 삼각형 틀은 찌그러질 수 없다.">
+  <div class="kicker">왜 그럴까?</div>
+  <h2>변의 길이가 같아도 모양이 바뀔 수 있을까?</h2>
+  <div class="cols">
+    <div class="card" style="text-align:center;padding:24px">
+      <svg width="600" height="360" viewBox="0 0 600 360" id="quadSvg"></svg>
+      <p style="margin:6px 0 0"><b>사각형</b>: 네 변이 그대로여도 <span class="c">모양이 여러 개</span></p>
+    </div>
+    <div class="card" style="text-align:center;padding:24px">
+      <svg width="600" height="360" viewBox="0 0 600 360" id="triSvg"></svg>
+      <p style="margin:6px 0 0"><b>삼각형</b>: 세 변이 정해지면 <span class="t">모양이 하나뿐</span></p>
+    </div>
+  </div>
+  <div class="frag" style="margin-top:30px;text-align:center"><span class="big-q">세 변의 길이가 같은 삼각형은 서로 합동 <span class="sub" style="font-weight:500">(SSS 합동)</span><br>→ 파이프 길이가 변하지 않으면 <span style="color:var(--accent)">삼각형은 찌그러질 수 없다</span></span></div>
+</section>
+
+<!-- 6. n각형 -->
+<section class="slide" data-note="<b>탐구 질문 (2분)</b> 활동지 1-3번. 슬라이더로 n을 바꾸며 '막대를 몇 개 더 넣으면 모양이 고정되는가?'를 묻습니다. 한 꼭짓점에서 대각선을 그으면 삼각형 n-2개로 나뉘고 추가 막대는 n-3개. 학생이 답을 말한 뒤 '정답 보기'.">
+  <div class="kicker">탐구 질문</div>
+  <h2>n각형을 고정하려면 막대가 몇 개 더 필요할까?</h2>
+  <div class="cols l" style="align-items:start">
+    <div class="card" style="text-align:center;padding:20px">
+      <svg width="700" height="470" viewBox="0 0 700 470" id="ngonSvg"></svg>
+      <div style="padding:0 30px"><div class="slabel"><span>변의 개수 n</span><b id="nVal">4</b></div><input type="range" id="nRange" min="3" max="10" value="4"></div>
+    </div>
+    <div>
+      <table class="t1" id="nTable">
+        <tr><th>도형</th><th>변 (막대)</th><th>더 필요한 막대</th><th>전체 막대</th></tr>
+      </table>
+      <div style="margin-top:22px;display:flex;gap:14px;align-items:center"><button class="ui" id="ansBtn">정답 보기</button><span class="small">먼저 활동지에 예상을 적어 보세요.</span></div>
+      <div class="card" style="margin-top:22px;padding:20px 26px"><p style="margin:0;font-size:24px">입체에서는? 연결발 <b>j</b>개를 고정하려면 파이프가 적어도 <b>3j − 6</b>개 필요합니다. <span class="sub">(3D 설계 실험실에서 확인)</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. 트러스의 말 -->
+<section class="slide" data-note="<b>용어 연결 (40초)</b> 트러스 용어를 4D프레임 부품과 연결합니다. 파이프 = 부재, 연결발 = 절점, 책상/바닥 = 받침점, 추 = 하중.">
+  <div class="kicker">트러스의 말 ↔ 4D프레임</div>
+  <h2>트러스를 이루는 네 가지</h2>
+  <div class="cols" style="grid-template-columns:1.1fr 1fr">
+    <svg width="760" height="470" viewBox="0 0 760 470" id="partsSvg"></svg>
+    <div class="mapping">
+      <span class="k">부재</span><span class="sub">막대 하나하나</span><span class="arrow">→</span><span><b>파이프</b></span>
+      <span class="k">절점</span><span class="sub">막대가 만나는 점</span><span class="arrow">→</span><span><b>연결발</b></span>
+      <span class="k">받침점</span><span class="sub">구조를 받치는 곳</span><span class="arrow">→</span><span><b>책상·바닥</b></span>
+      <span class="k">하중</span><span class="sub">구조가 버틸 무게</span><span class="arrow">→</span><span><b>추·물병</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- 8. 압축력과 인장력 -->
+<section class="slide" data-note="<b>힘의 종류 (1분 30초)</b> 꼭대기에 무게를 걸면 비스듬한 두 막대는 눌리고(압축, 빨강) 아래 막대는 당겨진다(인장, 파랑). 높이 슬라이더로 삼각형을 납작하게 만들면 같은 무게라도 막대가 받는 힘이 훨씬 커진다는 것을 보여 줍니다. 힘 = P ÷ (2 sin θ).">
+  <div class="kicker">힘의 분산</div>
+  <h2>막대는 <span class="c">눌리거나</span> <span class="t">당겨진다</span></h2>
+  <div class="cols l" style="align-items:start">
+    <svg width="820" height="520" viewBox="0 0 820 520" id="forceSvg"></svg>
+    <div>
+      <div class="legend" style="margin-bottom:20px"><span><i style="background:var(--comp)"></i>압축력 (눌림)</span><span><i style="background:var(--tens)"></i>인장력 (당김)</span></div>
+      <div class="slabel"><span>삼각형의 높이</span><b id="hVal"></b></div><input type="range" id="hRange" min="12" max="200" value="100">
+      <div class="card" style="margin-top:22px">
+        <p style="margin:0 0 8px">무게 <b>1</b>을 걸면</p>
+        <p style="margin:0">비스듬한 막대: <span class="c" id="fC"></span></p>
+        <p style="margin:0">아래 막대: <span class="t" id="fT"></span></p>
+      </div>
+      <p class="small frag" style="margin-top:20px">삼각형이 <b>납작할수록</b> 막대가 받는 힘이 커진다!<br>비스듬한 막대의 힘 = 무게 ÷ (2 × sin θ)</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. 하중은 절점에 -->
+<section class="slide" data-note="<b>거는 위치 (40초)</b> 파이프 한가운데에 추를 걸면 파이프가 휘어 쉽게 부러진다. 연결발(절점)에 걸면 파이프는 눌리거나 당겨지는 힘만 받는다. 그래서 오늘은 반드시 연결발에 고리를 겁니다.">
+  <div class="kicker">추를 거는 곳</div>
+  <h2>무게는 <span style="color:var(--accent)">연결발(절점)</span>에 걸어야 한다</h2>
+  <div class="cols">
+    <div class="card" style="text-align:center"><svg width="600" height="330" viewBox="0 0 600 330" id="bendSvg"></svg><p style="margin:8px 0 0">파이프 가운데에 걸면 → <span class="c">휘어서 꺾인다</span></p></div>
+    <div class="card" style="text-align:center"><svg width="600" height="330" viewBox="0 0 600 330" id="jointSvg"></svg><p style="margin:8px 0 0">연결발에 걸면 → <span class="t">눌림·당김으로 나눠 받는다</span></p></div>
+  </div>
+</section>
+
+<!-- 10. 다리 트러스 비교 -->
+<section class="slide" data-note="<b>다리 트러스 비교 (1분)</b> 같은 길이, 같은 높이, 가운데 아래 연결발에 무게 1. 탭을 바꿔 가며 빨강(압축)과 파랑(인장)이 어떻게 달라지는지, 가장 큰 힘이 얼마인지 비교합니다. 굵을수록 큰 힘. 프랫은 대각선이 당겨지고 하우는 대각선이 눌린다.">
+  <div class="kicker">어떤 모양이 유리할까?</div>
+  <h2>다리 트러스, 힘이 어떻게 흐를까?</h2>
+  <div class="tabs" id="bridgeTabs"></div>
+  <svg width="1420" height="420" viewBox="0 0 1420 420" id="bridgeSvg"></svg>
+  <div style="display:flex;gap:30px;align-items:center;justify-content:space-between">
+    <div class="legend"><span><i style="background:var(--comp)"></i>압축</span><span><i style="background:var(--tens)"></i>인장</span><span>굵을수록 큰 힘</span></div>
+    <div id="bridgeInfo" style="font-size:26px"></div>
+  </div>
+</section>
+
+<!-- 11. 입체로 -->
+<section class="slide" data-note="<b>입체 설계 (1분)</b> 평면 트러스 한 장은 앞뒤로 쓰러진다. 두 장을 세우고 가로대로 잇고, 윗면·아랫면·옆면에도 대각선(가새)을 넣어야 흔들리지 않는다. 3D 설계 실험실은 흔들리는 구조를 자주색 연결발로 표시한다(움직이는 모습은 스위치로 켤 수 있다).">
+  <div class="kicker">평면에서 입체로</div>
+  <h2>삼각형 한 장으로는 부족하다</h2>
+  <div class="cols">
+    <div class="card" style="text-align:center">
+      <div class="persp"><svg class="fall" width="520" height="200" viewBox="0 0 520 200" id="flat1"></svg></div>
+      <p style="margin:10px 0 0">평면 트러스 <b>한 장</b> → <span class="c">앞뒤로 쓰러진다</span></p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="persp"><svg width="560" height="360" viewBox="0 0 560 360" id="box3d"></svg></div>
+      <p style="margin:10px 0 0"><b>두 장</b>을 잇고 윗면·아랫면에도 <span class="t">대각선(가새)</span></p>
+    </div>
+  </div>
+  <p class="frag" style="text-align:center;margin-top:22px;font-size:30px"><b>점검:</b> 앞면 · 옆면 · 윗면 · 아랫면 <b>모두</b> 삼각형으로 나뉘어 있나요?</p>
+</section>
+
+<!-- 12. 미션 -->
+<section class="slide" data-note="<b>미션 안내 (1분)</b> 모둠이 A와 B 중 하나를 고릅니다. 같은 미션끼리 효율을 비교합니다. 재료 수량은 모든 모둠이 같습니다. 숫자 조건은 이 파일 맨 아래 CONFIG에서 바꿀 수 있습니다.">
+  <div class="kicker">오늘의 미션</div>
+  <h2>제한된 재료로, 가장 효율적으로 버텨라!</h2>
+  <div class="cols" style="align-items:stretch">
+    <div class="card" style="border:3px solid var(--accent)">
+      <span class="pill">미션 A</span>
+      <h3 style="font-size:36px;margin:14px 0">책상 사이 다리</h3>
+      <ul style="margin:0;padding-left:28px">
+        <li>두 책상을 <b><span class="cfg-gap"></span>cm</b> 띄우고 그 사이에 다리를 놓는다</li>
+        <li>다리는 책상 <b>윗면</b>에만 올려놓는다 (붙이기 금지)</li>
+        <li>추는 다리 <b>가운데 연결발</b>에 <b>걸거나 올린다</b></li>
+      </ul>
+    </div>
+    <div class="card" style="border:3px solid var(--gold)">
+      <span class="pill" style="background:#fff3d6;color:#9a6a00">미션 B</span>
+      <h3 style="font-size:36px;margin:14px 0">탑 위에 올리기</h3>
+      <ul style="margin:0;padding-left:28px">
+        <li>높이 <b><span class="cfg-h"></span>cm 이상</b>의 탑을 세운다</li>
+        <li>바닥에 그냥 세운다 (붙이기 금지)</li>
+        <li>추는 <b>꼭대기</b>에 <b>올리거나 건다</b></li>
+      </ul>
+    </div>
+  </div>
+  <div class="warn" style="margin-top:26px">추 다는 방식(⤓ 걸기 / ⤒ 올리기)은 모둠이 고른다 · 모든 모둠이 <b>같은 재료</b>(파이프 최대 <b><span class="cfg-max"></span>개</b>)를 쓴다 · 4D프레임 부품만 쓴다 (테이프·끈 보강 금지) · 같은 미션끼리 <b>효율</b>로 비교한다</div>
+</section>
+
+<!-- 13. 무게 재는 방법 -->
+<section class="slide" data-note="<b>측정 방법 (1분)</b> 추를 다는 방법은 두 가지입니다. 걸기는 S자 고리로 빈 봉지를 연결발에 매달고, 올리기는 연결발 위에 받침판을 얹습니다. 어느 쪽이든 100g 추를 1개씩 넣고 정해진 시간 버티면 성공. 10개(1kg)를 다 쓰면 미리 저울로 잰 500mL 물병을 하나씩 더합니다. 무너지거나 연결발이 빠지거나 봉지·받침판이 바닥에 닿거나 떨어지면 끝.">
+  <div class="kicker">측정 방법 · 모든 모둠 똑같이</div>
+  <h2>추는 두 가지 방법으로 단다</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1.08fr;gap:28px;align-items:start">
+    <div class="card" style="padding:18px;text-align:center"><svg width="400" height="330" viewBox="0 0 680 560" id="hangSvg"></svg><p style="margin:6px 0 0;font-size:25px"><b>⤓ 걸기</b> <span class="sub">S자 고리 + 봉지</span></p></div>
+    <div class="card" style="padding:18px;text-align:center"><svg width="400" height="330" viewBox="0 0 680 560" id="placeSvg"></svg><p style="margin:6px 0 0;font-size:25px"><b>⤒ 올리기</b> <span class="sub">받침판 위에 쌓기</span></p></div>
+    <div>
+      <div class="step"><div class="n">1</div><p>빈 봉지를 <b>걸거나</b> 받침판을 <b>얹는다</b></p></div>
+      <div class="step"><div class="n">2</div><p><b>100g 추를 1개씩</b> 넣고 <b><span class="cfg-hold"></span>초</b> 버티면 성공 → 기록</p></div>
+      <div class="step"><div class="n">3</div><p>추 10개를 다 쓰면 <b>500mL 물병</b>을 1개씩 더한다 <span class="small">(미리 저울로 잰 무게)</span></p></div>
+      <div class="step"><div class="n">4</div><p>무너짐 · 연결발 빠짐 · 바닥에 닿음 → <b>끝</b><br><span class="small">기록 = 마지막으로 버틴 무게 (봉지·받침판 포함)</span></p></div>
+      <div class="warn" style="margin-top:8px;font-size:21px">⚠ 매트를 깔고, 추 아래에 손·발을 두지 않는다</div>
+    </div>
+  </div>
+</section>
+
+<!-- 14. 효율과 평가 -->
+<section class="slide" data-note="<b>효율 (40초)</b> 무조건 많이 쓰면 튼튼하지만, 오늘은 '재료 하나당 얼마나 버티는가'로 비교합니다. 준비한 무게를 모두 버틴 모둠이 여럿이면 파이프를 적게 쓴 모둠이 이깁니다. 평가 관점 네 가지도 함께 알려 줍니다.">
+  <div class="kicker">어떻게 비교할까?</div>
+  <h2>효율 = 버틴 무게 ÷ 사용한 파이프 수</h2>
+  <div class="cols" style="align-items:start">
+    <div class="card">
+      <p style="margin:0 0 10px" class="sub">예시</p>
+      <p style="margin:0;font-size:30px">모둠 가: 2,400 g ÷ 48개 = <b>50 g/개</b></p>
+      <p style="margin:6px 0 0;font-size:30px">모둠 나: 1,800 g ÷ 30개 = <b style="color:var(--accent)">60 g/개</b> 🏆</p>
+      <p class="small" style="margin-top:18px">더 적게 버텼지만, 파이프 하나가 맡은 일이 더 많다!<br>준비한 무게를 모두 버티면 → 파이프를 적게 쓴 모둠이 유리</p>
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:26px" class="sub">오늘 선생님이 보는 것</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="card" style="padding:20px 22px"><h3 style="font-size:25px">창의적 문제해결</h3><p class="small" style="margin:0">원리를 이해하고 나만의 설계 아이디어 내기</p></div>
+        <div class="card" style="padding:20px 22px"><h3 style="font-size:25px">협업 · 의사소통</h3><p class="small" style="margin:0">의견을 내고 듣고, 갈등을 함께 풀기</p></div>
+        <div class="card" style="padding:20px 22px"><h3 style="font-size:25px">과제 집착 · 자기주도</h3><p class="small" style="margin:0">무너져도 원인을 찾아 끝까지 고치기</p></div>
+        <div class="card" style="padding:20px 22px"><h3 style="font-size:25px">태도 · 인성</h3><p class="small" style="margin:0">발표, 다른 모둠 의견에 대한 반응</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15. 진행 순서 -->
+<section class="slide" data-note="<b>진행 순서 (30초)</b> 역할을 나누게 합니다: 설계(3D 프로그램 조작), 제작, 측정, 기록·발표. 설계 단계에서 예측값을 활동지에 꼭 적게 합니다.">
+  <div class="kicker">진행 순서</div>
+  <h2>설계 → 제작 → 측정 → 발표</h2>
+  <div class="timeline">
+    <div class="tl"><div class="min">5분</div><h4>아이디어</h4><p>개인 스케치 후<br>모둠 설계 방향 정하기</p></div>
+    <div class="tl"><div class="min">15분</div><h4>3D 설계</h4><p>설계 실험실로 만들고<br>흔들림·약한 곳 확인<br><b>예측 무게 기록</b></p></div>
+    <div class="tl"><div class="min">20분</div><h4>제작 · 보강</h4><p>설계도대로 만들고<br>눌러 보며 약한 곳 수정</p></div>
+    <div class="tl"><div class="min">15분</div><h4>측정</h4><p>100g씩 · <span class="cfg-hold"></span>초 유지<br>기록표 작성</p></div>
+    <div class="tl"><div class="min">10분</div><h4>발표 · 정리</h4><p>효율, 바꾼 점,<br>무너진 원인</p></div>
+  </div>
+  <div class="card" style="margin-top:34px;display:flex;gap:40px;justify-content:center;font-size:26px">
+    <span>🧭 <b>설계</b> 담당</span><span>🔧 <b>제작</b> 담당</span><span>⚖️ <b>측정</b> 담당</span><span>📝 <b>기록·발표</b> 담당</span>
+  </div>
+</section>
+
+<!-- 15-2. 3D 설계 실험실 사용법 -->
+<section class="slide" data-note="<b>3D 설계 실험실 사용법 (1분)</b> 화면으로 시범을 보이며 설명합니다. 파이프는 '클릭 두 번에 1개'입니다. 연결발을 고르면 주변에 파란 점이 생기고, 그중 하나를 누르면 파이프가 생기고 선택이 풀립니다. 도형 찍기로 삼각형·사면체·삼각기둥을 한 번에 놓을 수 있고, 정면에 한 장을 그린 뒤 '뒤로 한 장 더 붙이기'를 누르면 입체가 됩니다. 흔들리면 흔들리는 연결발이 자주색으로 커지니 그 근처에 대각선을 넣게 하고(움직이는 모습은 「흔들리는 모습 움직이기」 스위치로 켜서 보여 줄 수 있음), 마지막에 '추 걸기 실험'으로 예측 무게를 확인해 활동지에 적게 합니다. C 자유는 미션이 아니라 연습장입니다.">
+  <div class="kicker">3D 설계 실험실 사용법</div>
+  <h2>클릭 두 번에 파이프 하나</h2>
+  <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:44px;align-items:start">
+    <div>
+      <div class="step"><div class="n">1</div><p>미션(<b>A 다리 · B 탑</b>)과 추 방식(<b>걸기 · 올리기</b>)을 고른다</p></div>
+      <div class="step"><div class="n">2</div><p>뻗을 <b>연결발을 클릭</b>해 고른다 <span class="small">(처음에는 바닥·책상 윗면의 점)</span></p></div>
+      <div class="step"><div class="n">3</div><p>주변의 <b style="color:var(--accent)">파란 점</b>(새 연결발)이나 <b style="color:var(--ok)">초록 점</b>(있는 연결발)을 누르면 <b>파이프 1개</b> 완성</p></div>
+      <div class="step"><div class="n">4</div><p><b>흔들리면</b> 연결발이 <b style="color:#c2255c">자주색</b>으로 커진다 → 대각선을 넣어 삼각형 만들기</p></div>
+      <div class="step"><div class="n">5</div><p><b>추 걸기 실험</b>으로 예측 무게를 확인하고 활동지에 적는다 → 저장 · 이미지</p></div>
+    </div>
+    <div>
+      <div class="card" style="padding:22px 26px;margin-bottom:16px"><h3 style="font-size:27px">빨리 만드는 도우미</h3>
+        <p style="margin:0;font-size:23px">◭ <b>도형 찍기</b>: 삼각형·사면체·삼각기둥을 한 번에<br>⧉ <b>뒤로 한 장 더 붙이기</b>: 정면의 한 장을 입체로</p></div>
+      <div class="card" style="padding:22px 26px;margin-bottom:16px"><h3 style="font-size:27px">색깔 읽기</h3>
+        <p style="margin:0;font-size:23px"><span class="c">빨강</span> 압축(눌림) · <span class="t">파랑</span> 인장(당김)<br><b style="color:#b07d00">노랑 깜빡임</b> 가장 먼저 무너질 곳</p></div>
+      <div class="card" style="padding:22px 26px"><h3 style="font-size:27px">잘 안 보이면</h3>
+        <p style="margin:0;font-size:23px">↻ 천천히 돌려 보기 · 높이 보조선 · 그림자<br><b>C 자유</b>는 마음껏 만들어 보는 연습장</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 16. 시작 -->
+<section class="slide" data-note="<b>활동 시작</b> 학생 노트북에서 '2_트러스 설계 실험실(3D).html'을 엽니다. 처음 열면 사용법 창이 뜹니다. 예시 메뉴는 설정(⚙)에서 숨길 수 있습니다.">
+  <div style="margin-top:90px;text-align:center">
+    <div class="kicker">활동 2 시작</div>
+    <h1 style="font-size:76px">우리 모둠의 트러스를 설계하라!</h1>
+    <p class="sub" style="font-size:32px">노트북에서 <b style="color:var(--ink)">트러스 설계 실험실(3D)</b>을 여세요</p>
+    <div style="margin-top:40px"><a class="yt" style="background:var(--accent);font-size:28px;padding:18px 34px" href="lab.html" target="_blank">🏗 트러스 설계 실험실 열기</a></div>
+    <div style="display:flex;gap:24px;justify-content:center;margin-top:56px">
+      <div class="card" style="width:400px;text-align:left"><h3>✓ 흔들리지 않나요?</h3><p class="small" style="margin:0">자주색 연결발이 보이면 삼각형이 부족한 것</p></div>
+      <div class="card" style="width:400px;text-align:left"><h3>✓ 추 걸기 실험</h3><p class="small" style="margin:0">100g씩 늘리며 어디가 먼저 무너지는지 보기</p></div>
+      <div class="card" style="width:400px;text-align:left"><h3>✓ 예측을 적었나요?</h3><p class="small" style="margin:0">실제 측정값과 비교해서 발표하기</p></div>
+    </div>
+  </div>
+</section>
+
+</div>
+<div class="navzone" id="navL"></div><div class="navzone" id="navR"></div>
+<div id="progress"></div>
+<div id="hud"></div>
+<div id="notes"></div>
+
+<script>/* ===== 트러스 해석 엔진 (핀 연결 3D 트러스, 강성도법) ===== */
+var TrussCore = (function () {
+  // 완전 피벗 가우스 소거. 특이(불안정)하면 영공간 벡터(흔들리는 모양)를 돌려준다.
+  function solveFP(K, F) {
+    var m = F.length;
+    var A = K.map(function (r) { return Float64Array.from(r); });
+    var b = Float64Array.from(F);
+    var col = []; for (var i = 0; i < m; i++) col.push(i);
+    var maxAbs = 0;
+    for (i = 0; i < m; i++) for (var j = 0; j < m; j++) maxAbs = Math.max(maxAbs, Math.abs(A[i][j]));
+    var tol = 1e-10 * (maxAbs || 1);
+    var rank = m;
+    for (var k = 0; k < m; k++) {
+      var best = 0, pi = k, pj = k;
+      for (i = k; i < m; i++) { var row = A[i]; for (j = k; j < m; j++) { var v = Math.abs(row[j]); if (v > best) { best = v; pi = i; pj = j; } } }
+      if (best < tol) { rank = k; break; }
+      if (pi !== k) { var t = A[pi]; A[pi] = A[k]; A[k] = t; var tb = b[pi]; b[pi] = b[k]; b[k] = tb; }
+      if (pj !== k) { for (i = 0; i < m; i++) { var tt = A[i][pj]; A[i][pj] = A[i][k]; A[i][k] = tt; } var tc = col[pj]; col[pj] = col[k]; col[k] = tc; }
+      var piv = A[k][k], rk = A[k];
+      for (i = k + 1; i < m; i++) {
+        var f = A[i][k] / piv; if (f === 0) continue;
+        var ri = A[i];
+        for (j = k; j < m; j++) ri[j] -= f * rk[j];
+        b[i] -= f * b[k];
+      }
+    }
+    var y = new Float64Array(m), x = new Float64Array(m);
+    if (rank === m) {
+      for (k = m - 1; k >= 0; k--) { var s = b[k]; for (j = k + 1; j < m; j++) s -= A[k][j] * y[j]; y[k] = s / A[k][k]; }
+      for (k = 0; k < m; k++) x[col[k]] = y[k];
+      return { ok: true, x: x };
+    }
+    y[rank] = 1;
+    for (k = rank - 1; k >= 0; k--) { var s2 = 0; for (j = k + 1; j < m; j++) s2 -= A[k][j] * y[j]; y[k] = s2 / A[k][k]; }
+    for (k = 0; k < m; k++) x[col[k]] = y[k];
+    return { ok: false, mode: x, rank: rank, size: m };
+  }
+
+  /*
+   * model: { nodes:[{id,x,y,z}], members:[{id,a,b}] }
+   * opt: { isSupport(node)->bool, loads:[nodeId], cap:{tension, comp, buckleB} }
+   * 하중은 전체 1 kgf를 하중점들에 똑같이 나누어 아래(-y)로 건다.
+   */
+  function analyze(model, opt) {
+    var R = { empty: true };
+    var members = model.members;
+    if (!members.length) return R;
+    var byId = {}; model.nodes.forEach(function (n) { byId[n.id] = n; });
+    var deg = {};
+    members.forEach(function (m) { deg[m.a] = (deg[m.a] || 0) + 1; deg[m.b] = (deg[m.b] || 0) + 1; });
+    var act = model.nodes.filter(function (n) { return deg[n.id]; });
+    var idx = {}, m = 0, supports = [];
+    act.forEach(function (n) { if (opt.isSupport(n)) supports.push(n.id); else { idx[n.id] = m; m += 3; } });
+    var loads = (opt.loads || []).filter(function (id) { return deg[id]; });
+    R = { empty: false, nodeCount: act.length, memberCount: members.length, supports: supports, loads: loads, deg: deg };
+
+    var geo = members.map(function (e) {
+      var A = byId[e.a], B = byId[e.b];
+      var d = [B.x - A.x, B.y - A.y, B.z - A.z];
+      var L = Math.hypot(d[0], d[1], d[2]);
+      return { L: L, c: [d[0] / L, d[1] / L, d[2] / L] };
+    });
+
+    var K = []; for (var i = 0; i < m; i++) K.push(new Float64Array(m));
+    var F = new Float64Array(m);
+    members.forEach(function (e, ei) {
+      var g = geo[ei], k = 1 / g.L, c = g.c;
+      var ends = [[e.a, 1], [e.b, -1]];
+      for (var p = 0; p < 2; p++) for (var q = 0; q < 2; q++) {
+        var ip = idx[ends[p][0]], iq = idx[ends[q][0]];
+        if (ip === undefined || iq === undefined) continue;
+        var sg = ends[p][1] * ends[q][1];
+        for (var r = 0; r < 3; r++) for (var s = 0; s < 3; s++) K[ip + r][iq + s] += sg * k * c[r] * c[s];
+      }
+    });
+    var loadOnSupport = 0;
+    loads.forEach(function (id) { if (idx[id] === undefined) loadOnSupport++; else F[idx[id] + 1] -= 1 / loads.length; });
+    R.loadOnSupport = loadOnSupport;
+
+    var sol = m ? solveFP(K, F) : { ok: true, x: new Float64Array(0) };
+    var vec = function (arr, id) { var b = idx[id]; return b === undefined ? [0, 0, 0] : [arr[b], arr[b + 1], arr[b + 2]]; };
+    if (!sol.ok) {
+      R.stable = false;
+      var mode = {}, mx = 0;
+      act.forEach(function (n) { var v = vec(sol.mode, n.id); mode[n.id] = v; mx = Math.max(mx, Math.hypot(v[0], v[1], v[2])); });
+      act.forEach(function (n) { var v = mode[n.id]; mode[n.id] = [v[0] / mx, v[1] / mx, v[2] / mx]; });
+      R.mode = mode;
+      R.dofMissing = sol.size - sol.rank;
+      return R;
+    }
+    R.stable = true;
+    var disp = {}, dmax = 0;
+    act.forEach(function (n) { var v = vec(sol.x, n.id); disp[n.id] = v; dmax = Math.max(dmax, Math.hypot(v[0], v[1], v[2])); });
+    R.disp = disp; R.dmax = dmax;
+    var cap = opt.cap || { tension: 3, comp: 5, buckleB: 600 };
+    var worst = -1, worstRatio = 0, maxAbsN = 0;
+    R.forces = members.map(function (e, ei) {
+      var g = geo[ei], ua = disp[e.a], ub = disp[e.b];
+      var N = (g.c[0] * (ub[0] - ua[0]) + g.c[1] * (ub[1] - ua[1]) + g.c[2] * (ub[2] - ua[2])) / g.L;
+      if (Math.abs(N) < 1e-9) N = 0;
+      var c = N >= 0 ? cap.tension : Math.min(cap.comp, cap.buckleB / (g.L * g.L));
+      var ratio = Math.abs(N) / c;
+      if (ratio > worstRatio) { worstRatio = ratio; worst = ei; }
+      maxAbsN = Math.max(maxAbsN, Math.abs(N));
+      return { N: N, L: g.L, cap: c, ratio: ratio };
+    });
+    R.maxAbsN = maxAbsN;
+    R.critical = worst;
+    R.Pmax = worstRatio > 1e-9 ? 1 / worstRatio : Infinity; // kgf
+    return R;
+  }
+
+  return { analyze: analyze, solveFP: solveFP };
+})();
+if (typeof module !== 'undefined') module.exports = TrussCore;
+</script>
+<script>
+/* ======== 수업 조건 (여기서 바꾸면 슬라이드 숫자가 함께 바뀝니다) ======== */
+var CONFIG = { gap: 40, towerH: 40, maxPipes: 60, holdSec: 10 };
+</script>
+<script>
+(function(){
+'use strict';
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e;}
+function txt(parent,x,y,s,attrs){var t=el('text',Object.assign({x:x,y:y},attrs||{}),parent); t.textContent=s; return t;}
+var COMP='#d4480c', TENS='#3557c9', INK='#1f1d1a', SUB='#6d675c', GRAY='#a39d90';
+function $(s){return document.querySelector(s);}
+
+/* ---------- 설정값 채우기 ---------- */
+document.querySelectorAll('.cfg-gap').forEach(function(e){e.textContent=CONFIG.gap;});
+document.querySelectorAll('.cfg-h').forEach(function(e){e.textContent=CONFIG.towerH;});
+document.querySelectorAll('.cfg-max').forEach(function(e){e.textContent=CONFIG.maxPipes;});
+document.querySelectorAll('.cfg-hold').forEach(function(e){e.textContent=CONFIG.holdSec;});
+
+/* ---------- 슬라이드 엔진 ---------- */
+var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0, stage=$('#stage');
+function fit(){var s=Math.min(innerWidth/1600,innerHeight/900); stage.style.transformOrigin='0 0'; stage.style.left=((innerWidth-1600*s)/2)+'px'; stage.style.top=((innerHeight-900*s)/2)+'px'; stage.style.transform='scale('+s+')';}
+addEventListener('resize',fit); fit();
+function frags(i){return [].slice.call(slides[i].querySelectorAll('.frag'));}
+function show(i,fromBack){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach(function(s,k){s.classList.toggle('on',k===cur);});
+  frags(cur).forEach(function(f){f.classList.toggle('shown',!!fromBack);});
+  $('#progress').style.width=((cur+1)/slides.length*100)+'%';
+  $('#hud').textContent=(cur+1)+' / '+slides.length+'   ← → 넘기기 · F 전체화면 · N 메모';
+  $('#notes').innerHTML=slides[cur].dataset.note||'';
+  var yt=$('#yt'); if(yt){ if(cur===1&&!yt.src) yt.src=yt.dataset.src; if(cur!==1&&yt.src){yt.removeAttribute('src');} }
+  if(location.hash!=='#'+(cur+1)) history.replaceState(null,'','#'+(cur+1));
+  onEnter(cur);
+}
+function next(){var f=frags(cur).filter(function(x){return !x.classList.contains('shown');}); if(f.length){f[0].classList.add('shown');return;} if(cur<slides.length-1) show(cur+1);}
+function prev(){var f=frags(cur).filter(function(x){return x.classList.contains('shown');}); if(f.length){f[f.length-1].classList.remove('shown');return;} if(cur>0) show(cur-1,true);}
+addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT') { if(e.key==='ArrowRight'||e.key==='ArrowLeft') return; }
+  if(['ArrowRight','PageDown',' ','Enter'].indexOf(e.key)>=0){e.preventDefault(); next();}
+  else if(['ArrowLeft','PageUp','Backspace'].indexOf(e.key)>=0){e.preventDefault(); prev();}
+  else if(e.key==='Home') show(0); else if(e.key==='End') show(slides.length-1);
+  else if(e.key==='f'||e.key==='F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  else if(e.key==='n'||e.key==='N'){var n=$('#notes'); n.style.display=n.style.display==='block'?'none':'block';}
+});
+$('#navR').onclick=next; $('#navL').onclick=prev;
+
+/* ---------- 2D 트러스 계산 ---------- */
+function solve2D(P,E,sup,load){ // P:[[x,y]], E:[[i,j]], sup:{i:[bx,by]}, load:{i:[fx,fy]}
+  var idx=[],m=0; P.forEach(function(p,i){var s=sup[i]||[0,0]; idx.push([s[0]?-1:m++, s[1]?-1:m++]);});
+  var K=[];for(var i=0;i<m;i++)K.push(new Float64Array(m)); var F=new Float64Array(m);
+  var geo=E.map(function(e){var a=P[e[0]],b=P[e[1]],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);return {L:L,c:[dx/L,dy/L]};});
+  E.forEach(function(e,k){var g=geo[k],kk=1/g.L,ends=[[e[0],1],[e[1],-1]];
+    for(var p=0;p<2;p++)for(var q=0;q<2;q++)for(var r=0;r<2;r++)for(var s=0;s<2;s++){var a=idx[ends[p][0]][r],b=idx[ends[q][0]][s]; if(a<0||b<0)continue; K[a][b]+=ends[p][1]*ends[q][1]*kk*g.c[r]*g.c[s];}});
+  for(var n in load){for(var r2=0;r2<2;r2++){var d=idx[n][r2]; if(d>=0) F[d]+=load[n][r2];}}
+  var sol=TrussCore.solveFP(K,F); if(!sol.ok) return null;
+  var u=P.map(function(p,i){return [idx[i][0]<0?0:sol.x[idx[i][0]], idx[i][1]<0?0:sol.x[idx[i][1]]];});
+  return E.map(function(e,k){var g=geo[k],ua=u[e[0]],ub=u[e[1]]; var N=(g.c[0]*(ub[0]-ua[0])+g.c[1]*(ub[1]-ua[1]))/g.L; return Math.abs(N)<1e-9?0:N;});
+}
+
+/* ---------- 그림 도우미 ---------- */
+function bar(svg,a,b,color,w,extra){return el('line',Object.assign({x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:color,'stroke-width':w,'stroke-linecap':'round'},extra||{}),svg);}
+function joint(svg,p,r,fill){return el('circle',{cx:p[0],cy:p[1],r:r||9,fill:fill||INK},svg);}
+function support(svg,p,roller){
+  var g=el('g',{},svg); el('path',{d:'M'+p[0]+' '+(p[1]+8)+' l-20 30 h40 z',fill:'#cfd6e2',stroke:GRAY,'stroke-width':2},g);
+  if(roller){el('circle',{cx:p[0]-10,cy:p[1]+44,r:5,fill:GRAY},g);el('circle',{cx:p[0]+10,cy:p[1]+44,r:5,fill:GRAY},g);}
+  el('line',{x1:p[0]-32,y1:p[1]+(roller?50:38),x2:p[0]+32,y2:p[1]+(roller?50:38),stroke:GRAY,'stroke-width':3},g);
+}
+function arrowDown(svg,p,len,label){
+  var g=el('g',{},svg); el('line',{x1:p[0],y1:p[1]-len,x2:p[0],y2:p[1]-16,stroke:'#e08a00','stroke-width':6},g);
+  el('path',{d:'M'+(p[0]-12)+' '+(p[1]-22)+' L'+p[0]+' '+(p[1]-4)+' L'+(p[0]+12)+' '+(p[1]-22)+' z',fill:'#e08a00'},g);
+  if(label) txt(g,p[0]+14,p[1]-len+10,label,{'font-size':24,fill:'#b06a00','font-weight':700});
+}
+function forceColor(N,max){var t=max>0?Math.abs(N)/max:0; if(Math.abs(N)<1e-6) return '#cfc8ba'; return N<0?mix('#f3c3a8',COMP,t):mix('#bfcbef',TENS,t);}
+function mix(a,b,t){var pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);var r=(pa>>16)+((pb>>16)-(pa>>16))*t,g=((pa>>8)&255)+(((pb>>8)&255)-((pa>>8)&255))*t,bl=(pa&255)+((pb&255)-(pa&255))*t;return 'rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(bl)+')';}
+
+/* ---------- 1. 표지 그림 ---------- */
+(function(){var s=$('#coverSvg'); var x0=40,y0=300,w=820,n=8,dx=w/n,h=120;
+  for(var i=0;i<n;i++){bar(s,[x0+i*dx,y0],[x0+(i+1)*dx,y0],'#c9d6f2',8); }
+  for(i=0;i<n-1;i++){bar(s,[x0+(i+0.5)*dx,y0-h],[x0+(i+1.5)*dx,y0-h],'#c9d6f2',8);}
+  for(i=0;i<n;i++){bar(s,[x0+i*dx,y0],[x0+(i+0.5)*dx,y0-h],i%2?'#9db8ef':'#f3a6a9',8); bar(s,[x0+(i+0.5)*dx,y0-h],[x0+(i+1)*dx,y0],i%2?'#f3a6a9':'#9db8ef',8);}
+  for(i=0;i<=n;i++) joint(s,[x0+i*dx,y0],8,'#5d6b85'); for(i=0;i<n;i++) joint(s,[x0+(i+0.5)*dx,y0-h],8,'#5d6b85');
+  el('rect',{x:0,y:y0+10,width:150,height:110,fill:'#ead9bd',rx:6},s); el('rect',{x:750,y:y0+10,width:150,height:110,fill:'#ead9bd',rx:6},s);
+})();
+
+/* ---------- 3. 생활 속 트러스 ---------- */
+(function(){
+  var box=$('#lifeCards');
+  var items=[['철교','기차가 지나는 다리'],['에펠탑','324m 철탑'],['지붕 트러스','체육관·창고 지붕'],['송전탑','전깃줄을 받치는 탑']];
+  items.forEach(function(it,k){
+    var c=document.createElement('div'); c.className='card'; c.style.padding='20px';
+    var s=el('svg',{width:300,height:330,viewBox:'0 0 300 330'}); c.appendChild(s);
+    var col='#3d3a33',w=5;
+    if(k===0){ var y0=230,h=90,n=5,dx=260/n,x0=20; el('path',{d:'M0 300 Q150 250 300 300 V330 H0z',fill:'#cfe3f7'},s);
+      for(var i=0;i<n;i++){bar(s,[x0+i*dx,y0],[x0+(i+1)*dx,y0],col,w); if(i<n-1) bar(s,[x0+(i+.5)*dx,y0-h],[x0+(i+1.5)*dx,y0-h],col,w); bar(s,[x0+i*dx,y0],[x0+(i+.5)*dx,y0-h],col,w); bar(s,[x0+(i+.5)*dx,y0-h],[x0+(i+1)*dx,y0],col,w);}
+      el('rect',{x:10,y:y0,width:30,height:80,fill:'#9aa3b2'},s); el('rect',{x:260,y:y0,width:30,height:80,fill:'#9aa3b2'},s);}
+    if(k===1){ var lv=[[150,20],[128,110],[172,110],[110,180],[190,180],[70,310],[230,310]];
+      bar(s,[150,20],[100,200],col,w);bar(s,[150,20],[200,200],col,w);bar(s,[100,200],[60,310],col,w);bar(s,[200,200],[240,310],col,w);
+      [[60,120],[110,180],[90,250]].forEach(function(y){});
+      for(var yy=60;yy<=300;yy+=30){var t=(yy-20)/180, xl=yy<=200?150-50*t:100-40*((yy-200)/110), xr=300-xl; bar(s,[xl,yy],[xr,yy],col,3);}
+      for(yy=60;yy<200;yy+=30){var t1=(yy-20)/180,t2=(yy+10)/180; bar(s,[150-50*t1,yy],[150+50*t2,yy+30],col,2.5);bar(s,[150+50*t1,yy],[150-50*t2,yy+30],col,2.5);}
+      el('path',{d:'M85 310 Q150 230 215 310',fill:'none',stroke:col,'stroke-width':w},s);}
+    if(k===2){ var b=[30,250],e=[270,250],tp=[150,90]; bar(s,b,e,col,w);bar(s,b,tp,col,w);bar(s,e,tp,col,w);
+      var pts=[[90,250],[150,250],[210,250]],up=[[90,170],[150,90],[210,170]];
+      for(var j=0;j<3;j++) bar(s,pts[j],up[j],col,3.5); bar(s,[90,250],[150,90],col,3.5);bar(s,[210,250],[150,90],col,3.5); bar(s,[90,170],[150,250],col,3.5);bar(s,[210,170],[150,250],col,3.5);
+      el('rect',{x:20,y:250,width:20,height:70,fill:'#9aa3b2'},s); el('rect',{x:260,y:250,width:20,height:70,fill:'#9aa3b2'},s);}
+    if(k===3){ bar(s,[150,20],[95,315],col,w);bar(s,[150,20],[205,315],col,w);
+      for(var q=0;q<6;q++){var y1=60+q*42,y2=y1+42,f=function(y){return 55*(y-20)/295;}; bar(s,[150-f(y1),y1],[150+f(y2),y2],col,2.5);bar(s,[150+f(y1),y1],[150-f(y2),y2],col,2.5);bar(s,[150-f(y1),y1],[150+f(y1),y1],col,2.5);}
+      bar(s,[60,70],[240,70],col,4); bar(s,[75,130],[225,130],col,4); el('path',{d:'M0 90 Q40 110 60 70 M240 70 Q260 110 300 90',fill:'none',stroke:'#9aa3b2','stroke-width':2},s);}
+    var h3=document.createElement('h3'); h3.textContent=it[0]; h3.style.margin='10px 0 2px'; c.appendChild(h3);
+    var p=document.createElement('p'); p.className='small'; p.style.margin='0'; p.textContent=it[1]; c.appendChild(p);
+    box.appendChild(c);
+  });
+})();
+
+/* ---------- 4. 사각형 vs 삼각형 ---------- */
+var pushT=0, pushAnim=null;
+function drawPush(v){
+  var s=$('#pushSvg'); s.innerHTML=''; $('#pushVal').textContent=Math.round(v);
+  var L=260, th=v/100*0.62; // 기울어지는 각
+  var a=[180,400], b=[180+L,400], d=[a[0]+L*Math.sin(th),400-L*Math.cos(th)], c=[d[0]+L,d[1]];
+  [[a,b],[b,c],[c,d],[d,a]].forEach(function(e){bar(s,e[0],e[1],'#3d3a33',14);}); [a,b,c,d].forEach(function(p){joint(s,p,13,'#1f1d1a');});
+  el('line',{x1:60,y1:400,x2:620,y2:400,stroke:'#cfd6e2','stroke-width':4},s);
+  if(v>0) {var ax=d[0]-120; el('line',{x1:ax,y1:d[1],x2:d[0]-26,y2:d[1],stroke:'#e08a00','stroke-width':8},s); el('path',{d:'M'+(d[0]-30)+' '+(d[1]-14)+' L'+(d[0]-12)+' '+d[1]+' L'+(d[0]-30)+' '+(d[1]+14)+'z',fill:'#e08a00'},s);}
+  txt(s,310,450,'사각형',{'font-size':30,'font-weight':700,'text-anchor':'middle',fill:INK});
+  var shake=v>0?Math.sin(v*0.9)*1.2:0;
+  var A=[880,400],B=[1180,400],C=[1030+shake,400-260];
+  [[A,B],[B,C],[C,A]].forEach(function(e){bar(s,e[0],e[1],'#3d3a33',14);}); [A,B,C].forEach(function(p){joint(s,p,13,'#1f1d1a');});
+  el('line',{x1:780,y1:400,x2:1340,y2:400,stroke:'#cfd6e2','stroke-width':4},s);
+  if(v>0){el('line',{x1:C[0]-140,y1:C[1]+60,x2:C[0]-44,y2:C[1]+60,stroke:'#e08a00','stroke-width':8},s); el('path',{d:'M'+(C[0]-48)+' '+(C[1]+46)+' L'+(C[0]-30)+' '+(C[1]+60)+' L'+(C[0]-48)+' '+(C[1]+74)+'z',fill:'#e08a00'},s);}
+  txt(s,1030,450,'삼각형',{'font-size':30,'font-weight':700,'text-anchor':'middle',fill:INK});
+  if(v>60){txt(s,320,90,'찌그러진다!',{'font-size':34,'font-weight':800,fill:COMP,'text-anchor':'middle'}); txt(s,1030,90,'그대로!',{'font-size':34,'font-weight':800,fill:TENS,'text-anchor':'middle'});}
+}
+$('#push').oninput=function(e){drawPush(+e.target.value);};
+$('#pushAuto').onclick=function(){ cancelAnimationFrame(pushAnim); var t0=performance.now(); (function f(t){var k=Math.min(1,(t-t0)/1600); var v=Math.round(100*k*k*(3-2*k)); $('#push').value=v; drawPush(v); if(k<1) pushAnim=requestAnimationFrame(f);})(t0); };
+drawPush(0);
+
+/* ---------- 5. 사각형 모양 변화 / 삼각형 ---------- */
+var quadPhase=0;
+function drawQuad(t){
+  var s=$('#quadSvg'); s.innerHTML='';
+  var L=200, th=Math.sin(t)*0.55, a=[200-100+0,300], b=[a[0]+L,300], d=[a[0]+L*Math.sin(th),300-L*Math.cos(th)], c=[d[0]+L,d[1]];
+  el('path',{d:'M'+a+' L'+b+' L'+c+' L'+d+' Z',fill:'rgba(229,72,77,.08)'},s);
+  [[a,b],[b,c],[c,d],[d,a]].forEach(function(e){bar(s,e[0],e[1],'#3d3a33',10);}); [a,b,c,d].forEach(function(p){joint(s,p,10,'#1f1d1a');});
+  [[a,b],[b,c],[c,d],[d,a]].forEach(function(e){var m=[(e[0][0]+e[1][0])/2,(e[0][1]+e[1][1])/2]; el('rect',{x:m[0]-22,y:m[1]-17,width:44,height:30,rx:8,fill:'#fff'},s); txt(s,m[0],m[1]+6,'5',{'font-size':22,'font-weight':700,'text-anchor':'middle',fill:SUB});});
+  var ang=Math.round(90-th*180/Math.PI); txt(s,a[0]+30,a[1]-14,ang+'°',{'font-size':22,fill:COMP,'font-weight':700});
+}
+function drawTri(){
+  var s=$('#triSvg'); s.innerHTML='';
+  var a=[150,300],b=[450,300],c=[330,80];
+  el('path',{d:'M'+a+' L'+b+' L'+c+' Z',fill:'rgba(47,111,236,.08)'},s);
+  [[a,b],[b,c],[c,a]].forEach(function(e){bar(s,e[0],e[1],'#3d3a33',10);}); [a,b,c].forEach(function(p){joint(s,p,10,'#1f1d1a');});
+  var lab=['6','5','7'];[[a,b],[b,c],[c,a]].forEach(function(e,k){var m=[(e[0][0]+e[1][0])/2,(e[0][1]+e[1][1])/2]; el('rect',{x:m[0]-22,y:m[1]-17,width:44,height:30,rx:8,fill:'#fff'},s); txt(s,m[0],m[1]+6,lab[k],{'font-size':22,'font-weight':700,'text-anchor':'middle',fill:SUB});});
+}
+drawTri();
+
+/* ---------- 6. n각형 ---------- */
+var showAns=false;
+function drawN(n){
+  $('#nVal').textContent=n;
+  var s=$('#ngonSvg'); s.innerHTML=''; var cx=350,cy=240,r=190, P=[];
+  for(var i=0;i<n;i++){var a=-Math.PI/2+2*Math.PI*i/n+(n%2?0:Math.PI/n); P.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}
+  for(i=2;i<n-1;i++) bar(s,P[0],P[i],TENS,8,{'stroke-dasharray':showAns?'':'14 12',opacity:showAns?1:.55});
+  for(i=0;i<n;i++) bar(s,P[i],P[(i+1)%n],'#3d3a33',11);
+  P.forEach(function(p){joint(s,p,10,'#1f1d1a');});
+  txt(s,350,465,showAns?('대각선 '+(n-3)+'개 → 삼각형 '+(n-2)+'개'):'파란 점선: 넣어야 할 막대는 몇 개?',{'font-size':24,'text-anchor':'middle',fill:SUB});
+  var rows=[[3,'삼각형'],[4,'사각형'],[5,'오각형'],[6,'육각형'],['n','n각형']];
+  var t=$('#nTable'); t.innerHTML='<tr><th>도형</th><th>변 (막대)</th><th>더 필요한 막대</th><th>전체 막대</th></tr>';
+  rows.forEach(function(r){var k=r[0], add=k==='n'?'n − 3':(k-3), tot=k==='n'?'2n − 3':(2*k-3); var hl=(k===n);
+    var cls=showAns?'':'hide-ans'; t.insertAdjacentHTML('beforeend','<tr style="'+(hl?'background:#e7effe;font-weight:700':'')+'"><td>'+r[1]+'</td><td>'+k+'</td><td><span class="'+cls+'">&nbsp;'+add+'&nbsp;</span></td><td><span class="'+cls+'">&nbsp;'+tot+'&nbsp;</span></td></tr>');});
+}
+$('#nRange').oninput=function(e){drawN(+e.target.value);};
+$('#ansBtn').onclick=function(){showAns=!showAns; this.textContent=showAns?'정답 가리기':'정답 보기'; this.classList.toggle('on',showAns); drawN(+$('#nRange').value);};
+drawN(4);
+
+/* ---------- 7. 트러스 구성 요소 ---------- */
+(function(){
+  var s=$('#partsSvg'); var y0=330,h=150,x0=80,dx=150;
+  var B=[[x0,y0],[x0+dx,y0],[x0+2*dx,y0],[x0+3*dx,y0],[x0+4*dx,y0]], T=[[x0+dx/2,y0-h],[x0+1.5*dx,y0-h],[x0+2.5*dx,y0-h],[x0+3.5*dx,y0-h]];
+  el('rect',{x:0,y:y0+36,width:130,height:90,fill:'#ead9bd',rx:6},s); el('rect',{x:630,y:y0+36,width:130,height:90,fill:'#ead9bd',rx:6},s);
+  for(var i=0;i<4;i++){bar(s,B[i],B[i+1],'#3d3a33',9); bar(s,B[i],T[i],'#3d3a33',9); bar(s,T[i],B[i+1],'#3d3a33',9); if(i<3) bar(s,T[i],T[i+1],'#3d3a33',9);}
+  bar(s,B[1],T[0],'#e08a00',13,{opacity:.0});
+  bar(s,T[1],T[2],'#e5a400',15,{opacity:.55});
+  B.concat(T).forEach(function(p){joint(s,p,10,'#1f1d1a');});
+  el('circle',{cx:T[2][0],cy:T[2][1],r:22,fill:'none',stroke:TENS,'stroke-width':4},s);
+  support(s,B[0]); support(s,B[4],true);
+  arrowDown(s,B[2],110,'');
+  function tag(x,y,t,c){el('rect',{x:x-6,y:y-30,width:t.length*26+24,height:42,rx:10,fill:'#fff',stroke:c,'stroke-width':3},s); txt(s,x+6,y,t,{'font-size':26,'font-weight':800,fill:c});}
+  tag(T[1][0]+30,T[1][1]-30,'부재','#b07d00'); tag(T[2][0]+30,T[2][1]-24,'절점',TENS); tag(B[0][0]+44,y0+80,'받침점',SUB); tag(B[2][0]+20,B[2][1]-80,'하중','#b06a00');
+})();
+
+/* ---------- 8. 압축 · 인장 ---------- */
+function drawForce(h){
+  var s=$('#forceSvg'); s.innerHTML='';
+  var A=[110,420],B=[710,420],C=[410,420-h*1.6];
+  var th=Math.atan2(h*1.6,300), Fc=1/(2*Math.sin(th)), Ft=1/(2*Math.tan(th));
+  var w=function(F){return 6+Math.min(26,F*7);};
+  bar(s,A,B,TENS,w(Ft)); bar(s,A,C,COMP,w(Fc)); bar(s,B,C,COMP,w(Fc));
+  [A,B,C].forEach(function(p){joint(s,p,12,'#1f1d1a');}); support(s,A); support(s,B,true);
+  arrowDown(s,C,90,'무게 1');
+  el('path',{d:'M'+(A[0]+70)+' '+A[1]+' A70 70 0 0 0 '+(A[0]+70*Math.cos(th))+' '+(A[1]-70*Math.sin(th)),fill:'none',stroke:SUB,'stroke-width':3},s);
+  txt(s,A[0]+82,A[1]-14,'θ = '+Math.round(th*180/Math.PI)+'°',{'font-size':24,fill:SUB,'font-weight':700});
+  $('#hVal').textContent=Math.round(th*180/Math.PI)+'°';
+  $('#fC').textContent='압축 '+Fc.toFixed(2)+' 배'; $('#fT').textContent='인장 '+Ft.toFixed(2)+' 배';
+}
+$('#hRange').oninput=function(e){drawForce(+e.target.value);}; drawForce(100);
+
+/* ---------- 9. 휨 vs 절점 ---------- */
+(function(){
+  var s=$('#bendSvg'); el('rect',{x:30,y:170,width:90,height:120,fill:'#ead9bd',rx:6},s); el('rect',{x:480,y:170,width:90,height:120,fill:'#ead9bd',rx:6},s);
+  el('path',{d:'M100 170 Q300 300 500 170',fill:'none',stroke:COMP,'stroke-width':12,'stroke-linecap':'round'},s);
+  joint(s,[100,170],11); joint(s,[500,170],11); arrowDown(s,[300,236],100,'');
+  txt(s,300,120,'휜다!',{'font-size':30,'font-weight':800,fill:COMP,'text-anchor':'middle'});
+  var s2=$('#jointSvg'); el('rect',{x:30,y:170,width:90,height:120,fill:'#ead9bd',rx:6},s2); el('rect',{x:480,y:170,width:90,height:120,fill:'#ead9bd',rx:6},s2);
+  var a=[100,170],b=[500,170],c=[300,170],t=[300,60];
+  bar(s2,a,c,TENS,9); bar(s2,c,b,TENS,9); bar(s2,a,t,COMP,9); bar(s2,t,b,COMP,9); bar(s2,t,c,'#b9cdf6',7);
+  [a,b,c,t].forEach(function(p){joint(s2,p,11);}); arrowDown(s2,[300,250],70,''); el('line',{x1:300,y1:180,x2:300,y2:236,stroke:'#6b4f1d','stroke-width':3},s2);
+})();
+
+/* ---------- 10. 다리 트러스 비교 ---------- */
+var BR={
+  '워런':function(){var P=[],E=[],i; for(i=0;i<=6;i++)P.push([i,0]); for(i=0;i<6;i++)P.push([i+.5,1]); for(i=0;i<6;i++){E.push([i,i+1]);E.push([i,7+i]);E.push([7+i,i+1]); if(i<5)E.push([7+i,8+i]);} return {P:P,E:E};},
+  '프랫':function(){var P=[],E=[],i; for(i=0;i<=6;i++)P.push([i,0]); for(i=1;i<=5;i++)P.push([i,1]); var T=function(x){return 6+x;}; for(i=0;i<6;i++)E.push([i,i+1]); for(i=1;i<5;i++)E.push([T(i),T(i+1)]); for(i=1;i<=5;i++)E.push([i,T(i)]); E.push([0,T(1)]);E.push([6,T(5)]); E.push([T(1),2]);E.push([T(2),3]);E.push([T(4),3]);E.push([T(5),4]); return {P:P,E:E};},
+  '하우':function(){var P=[],E=[],i; for(i=0;i<=6;i++)P.push([i,0]); for(i=1;i<=5;i++)P.push([i,1]); var T=function(x){return 6+x;}; for(i=0;i<6;i++)E.push([i,i+1]); for(i=1;i<5;i++)E.push([T(i),T(i+1)]); for(i=1;i<=5;i++)E.push([i,T(i)]); E.push([0,T(1)]);E.push([6,T(5)]); E.push([1,T(2)]);E.push([2,T(3)]);E.push([5,T(4)]);E.push([4,T(3)]); return {P:P,E:E};}
+};
+var brCur='워런';
+function drawBridge(){
+  var s=$('#bridgeSvg'); s.innerHTML=''; var m=BR[brCur](), sc=180, ox=170, oy=300;
+  var X=function(p){return [ox+p[0]*sc, oy-p[1]*sc];};
+  var N=solve2D(m.P,m.E,{0:[1,1],6:[0,1]},{3:[0,-1]});
+  var mx=Math.max.apply(null,N.map(Math.abs));
+  el('rect',{x:20,y:oy+40,width:180,height:80,fill:'#ead9bd',rx:6},s); el('rect',{x:ox+6*sc-30,y:oy+40,width:180,height:80,fill:'#ead9bd',rx:6},s);
+  m.E.forEach(function(e,k){bar(s,X(m.P[e[0]]),X(m.P[e[1]]),forceColor(N[k],mx),5+18*Math.abs(N[k])/mx);});
+  m.P.forEach(function(p){joint(s,X(p),9,'#1f1d1a');});
+  support(s,X(m.P[0])); support(s,X(m.P[6]),true);
+  arrowDown(s,[X(m.P[3])[0],X(m.P[3])[1]+110],0,'');
+  var hp=X(m.P[3]); el('line',{x1:hp[0],y1:hp[1]+10,x2:hp[0],y2:hp[1]+60,stroke:'#6b4f1d','stroke-width':3},s); el('rect',{x:hp[0]-26,y:hp[1]+60,width:52,height:44,rx:8,fill:'#b08d2e'},s); txt(s,hp[0],hp[1]+90,'1',{'font-size':24,'font-weight':800,fill:'#fff','text-anchor':'middle'});
+  var minN=Math.min.apply(null,N), maxN=Math.max.apply(null,N);
+  $('#bridgeInfo').innerHTML='가장 큰 압축 <b class="c">'+Math.abs(minN).toFixed(2)+'배</b> · 가장 큰 인장 <b class="t">'+maxN.toFixed(2)+'배</b> · 막대 '+m.E.length+'개';
+}
+var tabs=$('#bridgeTabs'); Object.keys(BR).forEach(function(k){var b=document.createElement('button'); b.className='ui'+(k===brCur?' on':''); b.textContent=k+' 트러스'; b.onclick=function(){brCur=k; [].forEach.call(tabs.children,function(x){x.classList.remove('on');}); b.classList.add('on'); drawBridge();}; tabs.appendChild(b);});
+drawBridge();
+
+/* ---------- 11. 평면 vs 입체 ---------- */
+(function(){
+  var s=$('#flat1'); var x0=20,y0=190,n=5,dx=96,h=80;
+  for(var i=0;i<n;i++){bar(s,[x0+i*dx,y0],[x0+(i+1)*dx,y0],'#3d3a33',7); bar(s,[x0+i*dx,y0],[x0+(i+.5)*dx,y0-h],'#3d3a33',7); bar(s,[x0+(i+.5)*dx,y0-h],[x0+(i+1)*dx,y0],'#3d3a33',7); if(i<n-1) bar(s,[x0+(i+.5)*dx,y0-h],[x0+(i+1.5)*dx,y0-h],'#3d3a33',7);}
+  var b=$('#box3d'); // 등각 투영 상자 트러스
+  var iso=function(x,y,z){return [90+x*1.0+z*0.55, 300-y*1.0-z*0.32];};
+  var L=360,H=110,W=150,nn=4,d=L/nn;
+  var P=function(x,y,z){return iso(x,y,z);};
+  var lines=[];
+  [0,W].forEach(function(z){ for(var i=0;i<nn;i++){lines.push([[i*d,0,z],[(i+1)*d,0,z],'#3d3a33']); lines.push([[i*d,H,z],[(i+1)*d,H,z],'#3d3a33']); lines.push([[i*d,0,z],[(i+1)*d,H,z],'#3d3a33']);} for(i=0;i<=nn;i++) lines.push([[i*d,0,z],[i*d,H,z],'#3d3a33']); });
+  for(var i2=0;i2<=nn;i2++){lines.push([[i2*d,0,0],[i2*d,0,W],'#3d3a33']); lines.push([[i2*d,H,0],[i2*d,H,W],'#3d3a33']);}
+  for(i2=0;i2<nn;i2++){lines.push([[i2*d,0,0],[(i2+1)*d,0,W],TENS]); lines.push([[i2*d,H,0],[(i2+1)*d,H,W],TENS]);}
+  lines.sort(function(a,c){return (c[0][2]+c[1][2])-(a[0][2]+a[1][2]);});
+  lines.forEach(function(l){bar(b,P.apply(null,l[0]),P.apply(null,l[1]),l[2],l[2]===TENS?6:6,{opacity:l[2]===TENS?.95:.9});});
+})();
+
+/* ---------- 13. 추 다는 그림 (걸기 · 올리기) ---------- */
+function rig(s){
+  var y0=150;
+  el('rect',{x:0,y:y0,width:170,height:26,fill:'#d9b98c'},s); el('rect',{x:510,y:y0,width:170,height:26,fill:'#d9b98c'},s);
+  el('rect',{x:20,y:y0+26,width:14,height:360,fill:'#c29e6d'},s); el('rect',{x:646,y:y0+26,width:14,height:360,fill:'#c29e6d'},s);
+  el('rect',{x:120,y:510,width:440,height:22,rx:6,fill:'#9fb2c9'},s);
+  var B=[[110,y0],[230,y0],[340,y0],[450,y0],[570,y0]], T=[[170,y0-90],[285,y0-90],[395,y0-90],[510,y0-90]];
+  for(var i=0;i<4;i++){bar(s,B[i],B[i+1],'#3d3a33',8);bar(s,B[i],T[i],'#3d3a33',8);bar(s,T[i],B[i+1],'#3d3a33',8); if(i<3) bar(s,T[i],T[i+1],'#3d3a33',8);}
+  B.concat(T).forEach(function(p){joint(s,p,9,'#1f1d1a');});
+  return {B:B,T:T};
+}
+(function(){
+  var s=$('#placeSvg'); var g=rig(s), a=g.T[1], b=g.T[2];
+  el('circle',{cx:a[0],cy:a[1],r:18,fill:'none',stroke:'#e08a00','stroke-width':4},s); el('circle',{cx:b[0],cy:b[1],r:18,fill:'none',stroke:'#e08a00','stroke-width':4},s);
+  el('rect',{x:a[0]-40,y:a[1]-24,width:b[0]-a[0]+80,height:12,rx:4,fill:'#f3eee3',stroke:'#a39d90','stroke-width':3},s);
+  for(var k=0;k<6;k++){var wx=a[0]-10+(k%3)*42, wy=a[1]-62-Math.floor(k/3)*38; el('rect',{x:wx,y:wy,width:34,height:36,rx:5,fill:'#c9a23f',stroke:'#8b6f22','stroke-width':2},s);}
+  el('rect',{x:b[0]+2,y:a[1]-120,width:36,height:96,rx:9,fill:'#bfe3ff',stroke:'#6aa9d8','stroke-width':2},s);
+  txt(s,(a[0]+b[0])/2,a[1]-150,'받침판 + 추 · 물병',{'font-size':24,fill:INK,'font-weight':700,'text-anchor':'middle'});
+})();
+(function(){
+  var s=$('#hangSvg'); var y0=150; rig(s);
+  if(false){
+  el('rect',{x:0,y:y0,width:170,height:26,fill:'#d9b98c'},s); el('rect',{x:510,y:y0,width:170,height:26,fill:'#d9b98c'},s);
+  el('rect',{x:20,y:y0+26,width:14,height:360,fill:'#c29e6d'},s); el('rect',{x:646,y:y0+26,width:14,height:360,fill:'#c29e6d'},s);
+  el('rect',{x:120,y:510,width:440,height:22,rx:6,fill:'#8fa7c9'},s); txt(s,340,560-6,'매트',{'font-size':22,fill:SUB,'text-anchor':'middle'});
+  var B=[[110,y0],[230,y0],[340,y0],[450,y0],[570,y0]], T=[[170,y0-90],[285,y0-90],[395,y0-90],[510,y0-90]];
+  for(var i=0;i<4;i++){bar(s,B[i],B[i+1],'#3d3a33',8);bar(s,B[i],T[i],'#3d3a33',8);bar(s,T[i],B[i+1],'#3d3a33',8); if(i<3) bar(s,T[i],T[i+1],'#3d3a33',8);}
+  B.concat(T).forEach(function(p){joint(s,p,9,'#1f1d1a');});
+  }
+  var c=[340,y0]; el('circle',{cx:c[0],cy:c[1],r:20,fill:'none',stroke:'#e08a00','stroke-width':4},s);
+  el('path',{d:'M'+c[0]+' '+(c[1]+8)+' c 16 6 16 26 0 30 c -16 4 -16 24 0 30',fill:'none',stroke:'#555','stroke-width':5,'stroke-linecap':'round'},s);
+  txt(s,c[0]+28,c[1]+50,'S자 고리',{'font-size':22,fill:INK,'font-weight':700});
+  el('line',{x1:c[0],y1:c[1]+68,x2:c[0],y2:c[1]+120,stroke:'#6b4f1d','stroke-width':3},s);
+  el('path',{d:'M'+(c[0]-60)+' '+(c[1]+120)+' L'+(c[0]+60)+' '+(c[1]+120)+' L'+(c[0]+70)+' '+(c[1]+250)+' Q'+c[0]+' '+(c[1]+275)+' '+(c[0]-70)+' '+(c[1]+250)+' Z',fill:'#f2f4f8',stroke:'#aab3c2','stroke-width':3},s);
+  for(var k=0;k<5;k++){var wx=c[0]-44+(k%3)*36, wy=c[1]+205-Math.floor(k/3)*38; el('rect',{x:wx,y:wy,width:30,height:34,rx:5,fill:'#c9a23f',stroke:'#8b6f22','stroke-width':2},s);}
+  el('rect',{x:c[0]+8,y:c[1]+132,width:34,height:70,rx:8,fill:'#bfe3ff',stroke:'#6aa9d8','stroke-width':2},s);
+  txt(s,c[0]+100,c[1]+190,'100g 추 · 물병',{'font-size':22,fill:INK,'font-weight':700});
+  el('line',{x1:c[0]+80,y1:c[1]+262,x2:c[0]+80,y2:510,stroke:COMP,'stroke-width':3,'stroke-dasharray':'8 6'},s);
+  txt(s,c[0]+92,c[1]+330,'여기 닿으면 끝',{'font-size':20,fill:COMP,'font-weight':700});
+
+})();
+
+/* ---------- 들어갈 때 애니메이션 ---------- */
+var raf=null;
+function onEnter(i){
+  cancelAnimationFrame(raf);
+  if(i===4){var t0=performance.now(); (function f(t){drawQuad((t-t0)/700); raf=requestAnimationFrame(f);})(t0);}
+}
+addEventListener('hashchange',function(){var k=parseInt(location.hash.slice(1),10)-1; if(!isNaN(k)&&k!==cur) show(k);});
+var start=parseInt((location.hash||'#1').slice(1),10)-1; show(isNaN(start)?0:start);
+})();
+</script>
+</body>
+</html>
