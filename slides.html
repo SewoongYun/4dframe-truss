@@ -432,15 +432,18 @@ var TrussCore = (function () {
 
     var geo = members.map(function (e) {
       var A = byId[e.a], B = byId[e.b];
+      if (!A || !B) return { L: 0, c: [0, 0, 0], bad: true };
       var d = [B.x - A.x, B.y - A.y, B.z - A.z];
       var L = Math.hypot(d[0], d[1], d[2]);
+      if (!(L > 1e-6) || !isFinite(L)) return { L: 0, c: [0, 0, 0], bad: true }; // 0길이 파이프는 힘을 받지 않는 것으로
       return { L: L, c: [d[0] / L, d[1] / L, d[2] / L] };
     });
 
     var K = []; for (var i = 0; i < m; i++) K.push(new Float64Array(m));
     var F = new Float64Array(m);
     members.forEach(function (e, ei) {
-      var g = geo[ei], k = 1 / g.L, c = g.c;
+      var g = geo[ei]; if (g.bad) return;
+      var k = 1 / g.L, c = g.c;
       var ends = [[e.a, 1], [e.b, -1]];
       for (var p = 0; p < 2; p++) for (var q = 0; q < 2; q++) {
         var ip = idx[ends[p][0]], iq = idx[ends[q][0]];
@@ -472,6 +475,7 @@ var TrussCore = (function () {
     var worst = -1, worstRatio = 0, maxAbsN = 0;
     R.forces = members.map(function (e, ei) {
       var g = geo[ei], ua = disp[e.a], ub = disp[e.b];
+      if (g.bad || !ua || !ub) return { N: 0, L: g.L, cap: Infinity, ratio: 0 };
       var N = (g.c[0] * (ub[0] - ua[0]) + g.c[1] * (ub[1] - ua[1]) + g.c[2] * (ub[2] - ua[2])) / g.L;
       if (Math.abs(N) < 1e-9) N = 0;
       var c = N >= 0 ? cap.tension : Math.min(cap.comp, cap.buckleB / (g.L * g.L));

@@ -155,6 +155,8 @@ ol.simlog li b{flex:none;width:18px;text-align:center}
 ol.simlog li.bad{color:var(--bad)} ol.simlog li.warn{color:var(--warn)} ol.simlog li.ok,ol.simlog li.sum{color:var(--ok);font-weight:700}
 body.simming .tools, body.simming #planeSeg{opacity:.4;pointer-events:none}
 
+.loadfail{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.8;padding:24px;color:var(--ink);font-size:15px}
+.loadfail span{color:var(--muted);font-size:13px}
 dialog{border:0;border-radius:18px;padding:0;max-width:640px;width:92%;box-shadow:0 24px 70px rgba(0,0,0,.28);background:var(--card);color:var(--ink)}
 dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
 .dlg{padding:22px 24px}
@@ -185,6 +187,7 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
   <div class="grp">
     <select class="hbtn" id="examples" title="예시 구조 불러오기"><option value="">예시 불러오기…</option></select>
     <button class="hbtn icon" id="undo" title="되돌리기 (Ctrl+Z)">↶</button>
+    <button class="hbtn icon" id="redo" title="다시 실행 (Ctrl+Y)">↷</button>
     <button class="hbtn icon" id="clear" title="모두 지우기">🗑</button>
     <span class="divider"></span>
     <button class="hbtn" id="save" title="설계를 파일(.json)로 저장">저장</button>
@@ -266,7 +269,7 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
   </aside>
 
   <div id="view">
-    <div id="bar"><span class="chip" id="statusChip">파이프 0개</span><span class="chip" id="planeChip"></span></div>
+    <div id="bar"><span class="chip" id="statusChip">파이프 0개</span><span class="chip" id="planeChip"></span><span class="chip" id="planarChip" hidden title="선생님 설정에서 바꿀 수 있어요">2D 평면 자동 구속 적용됨</span></div>
     <div id="labels"></div>
     <div id="banner"></div>
   </div>
@@ -356,6 +359,7 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
     <span>봉지(받침판) 무게 (g)</span><input type="number" id="cBag" min="0" step="1">
     <span>물병 1개 무게 (g)</span><input type="number" id="cBot" min="1" step="1">
     <span>준비한 물병 개수</span><input type="number" id="cBots" min="0" max="20" step="1">
+    <span>평면(한 장) 구조 계산</span><select id="cPlanar"><option value="0">실제처럼 (앞뒤로 쓰러짐)</option><option value="1">2D로만 (앞뒤 자동 구속)</option></select>
     <span>예시 불러오기 메뉴 보이기</span><select id="cEx"><option value="1">보이기</option><option value="0">숨기기</option></select>
   </div>
   <h3 style="font-size:14px;margin:16px 0 4px">세기 가정값 (예측에만 쓰임)</h3>
@@ -1479,15 +1483,18 @@ var TrussCore = (function () {
 
     var geo = members.map(function (e) {
       var A = byId[e.a], B = byId[e.b];
+      if (!A || !B) return { L: 0, c: [0, 0, 0], bad: true };
       var d = [B.x - A.x, B.y - A.y, B.z - A.z];
       var L = Math.hypot(d[0], d[1], d[2]);
+      if (!(L > 1e-6) || !isFinite(L)) return { L: 0, c: [0, 0, 0], bad: true }; // 0길이 파이프는 힘을 받지 않는 것으로
       return { L: L, c: [d[0] / L, d[1] / L, d[2] / L] };
     });
 
     var K = []; for (var i = 0; i < m; i++) K.push(new Float64Array(m));
     var F = new Float64Array(m);
     members.forEach(function (e, ei) {
-      var g = geo[ei], k = 1 / g.L, c = g.c;
+      var g = geo[ei]; if (g.bad) return;
+      var k = 1 / g.L, c = g.c;
       var ends = [[e.a, 1], [e.b, -1]];
       for (var p = 0; p < 2; p++) for (var q = 0; q < 2; q++) {
         var ip = idx[ends[p][0]], iq = idx[ends[q][0]];
@@ -1519,6 +1526,7 @@ var TrussCore = (function () {
     var worst = -1, worstRatio = 0, maxAbsN = 0;
     R.forces = members.map(function (e, ei) {
       var g = geo[ei], ua = disp[e.a], ub = disp[e.b];
+      if (g.bad || !ua || !ub) return { N: 0, L: g.L, cap: Infinity, ratio: 0 };
       var N = (g.c[0] * (ub[0] - ua[0]) + g.c[1] * (ub[1] - ua[1]) + g.c[2] * (ub[2] - ua[2])) / g.L;
       if (Math.abs(N) < 1e-9) N = 0;
       var c = N >= 0 ? cap.tension : Math.min(cap.comp, cap.buckleB / (g.L * g.L));
@@ -1631,12 +1639,17 @@ if (typeof module !== 'undefined') module.exports = TrussTemplates;
 <script>
 (function(){
 'use strict';
+if(typeof THREE==='undefined'||!THREE.OrbitControls){
+  var vw=document.getElementById('view');
+  if(vw) vw.innerHTML='<div class="loadfail"><b>3D 그래픽 라이브러리를 불러오지 못했어요.</b><br>인터넷 연결을 확인하고 새로고침해 주세요.<br><span>인터넷이 없는 교실에서는 라이브러리가 들어 있는 배포 파일(lab.html)을 쓰세요.</span></div>';
+  return;
+}
 var $ = function(s){return document.querySelector(s);};
 var $$ = function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
 function store(k,v){try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v);}catch(e){return null;}}
 
 /* ---------- 설정 ---------- */
-var CFG_DEFAULT={gap:40,towerH:40,maxPipes:60,maxPorts:8,grid:5,showEx:1,tension:2,comp:4,buckleB:400,bagG:20,bottleG:520,bottles:6};
+var CFG_DEFAULT={gap:40,towerH:40,maxPipes:60,maxPorts:8,grid:5,showEx:1,tension:2,comp:4,buckleB:400,bagG:20,bottleG:520,bottles:6,planar2D:0};
 var CFG=Object.assign({},CFG_DEFAULT);
 try{var cs=JSON.parse(store('truss.cfg')||'null'); if(cs) Object.assign(CFG,cs);}catch(e){}
 
@@ -1644,10 +1657,38 @@ try{var cs=JSON.parse(store('truss.cfg')||'null'); if(cs) Object.assign(CFG,cs);
 function blank(m){m=m||'bridge'; return {v:1,team:'',mission:m,loadMode:m==='bridge'?'hang':'place',nodes:[],members:[],loads:[],fixed:[],nid:1,mid:1};}
 function isHang(){return (S.loadMode||(S.mission==='bridge'?'hang':'place'))==='hang';}
 var S=blank();
-try{var sv=JSON.parse(store('truss.autosave')||'null'); if(sv&&sv.nodes) S=sv;}catch(e){}
-var undoStack=[];
-function snap(){undoStack.push(JSON.stringify(S)); if(undoStack.length>150) undoStack.shift();}
-function undo(){ if(!undoStack.length) return; S=JSON.parse(undoStack.pop()); chain=null; moveSel=null; changed(); }
+/* 저장 파일 검증: 형식이 틀리면 오류, 겹친 연결발은 합치고 0길이·중복·끊어진 파이프는 버린다 */
+function sanitizeModel(o){
+  if(!o||typeof o!=='object'||!Array.isArray(o.nodes)||!Array.isArray(o.members)) throw new Error('형식이 달라요');
+  if(o.nodes.length>2000||o.members.length>4000) throw new Error('너무 커요');
+  var mi=['bridge','tower','free'].indexOf(o.mission)>=0?o.mission:'bridge';
+  var out=blank(mi);
+  out.team=typeof o.team==='string'?o.team.slice(0,20):'';
+  if(o.loadMode==='hang'||o.loadMode==='place') out.loadMode=o.loadMode;
+  var idMap={}, byKey={}, nid=1, mid=1, seen={};
+  o.nodes.forEach(function(n){
+    if(!n) return; var x=+n.x, y=+n.y, z=+n.z;
+    if(!isFinite(x)||!isFinite(y)||!isFinite(z)||Math.abs(x)>1000||Math.abs(y)>1000||Math.abs(z)>1000) return;
+    x=Math.round(x*1000)/1000; y=Math.round(y*1000)/1000; z=Math.round(z*1000)/1000;
+    var k=x+','+y+','+z; if(!byKey[k]){byKey[k]=nid; out.nodes.push({id:nid,x:x,y:y,z:z}); nid++;}
+    idMap[n.id]=byKey[k];
+  });
+  o.members.forEach(function(e){
+    if(!e) return; var a=idMap[e.a], b=idMap[e.b]; if(!a||!b||a===b) return;
+    var k=a<b?a+'-'+b:b+'-'+a; if(seen[k]) return; seen[k]=1; out.members.push({id:mid++,a:a,b:b});
+  });
+  var used={}; out.members.forEach(function(e){used[e.a]=used[e.b]=1;});
+  out.nodes=out.nodes.filter(function(n){return used[n.id];});
+  var ids=function(arr){var r=[]; (Array.isArray(arr)?arr:[]).forEach(function(id){var v=idMap[id]; if(v&&used[v]&&r.indexOf(v)<0) r.push(v);}); return r;};
+  out.loads=ids(o.loads); out.fixed=ids(o.fixed); out.nid=nid; out.mid=mid;
+  return out;
+}
+try{var sv=JSON.parse(store('truss.autosave')||'null'); if(sv&&sv.nodes) S=sanitizeModel(sv);}catch(e){S=blank();}
+var undoStack=[], redoStack=[];
+function snap(){undoStack.push(JSON.stringify(S)); if(undoStack.length>150) undoStack.shift(); redoStack.length=0;}
+function restoreState(json){ var prev=S.mission; S=JSON.parse(json); chain=null; moveSel=null; if(S.mission!==prev) setMission(S.mission,true); else changed(); }
+function undo(){ if(!undoStack.length) return; redoStack.push(JSON.stringify(S)); restoreState(undoStack.pop()); }
+function redo(){ if(!redoStack.length) return; undoStack.push(JSON.stringify(S)); restoreState(redoStack.pop()); }
 
 var tool='build', plane='XZ', planeOff=0, chain=null, moveSel=null;
 var hover={node:null,member:null,point:null,valid:true};
@@ -1696,10 +1737,20 @@ function lenColor(L){for(var i=0;i<LEN_COLORS.length;i++) if(L<=LEN_COLORS[i][0]
 
 var cylGeo=new THREE.CylinderGeometry(1,1,1,12);
 var sphGeo=new THREE.SphereGeometry(1,16,12);
+cylGeo.userData.shared=sphGeo.userData.shared=true;
+/* 메모리 해제: 공유 재료(shared)가 아니면 geometry·material을 dispose */
+function disposeObj(o){ o.traverse(function(c){ if(c.geometry&&!c.geometry.userData.shared) c.geometry.dispose(); if(c.material){ (Array.isArray(c.material)?c.material:[c.material]).forEach(function(m){ if(!m.userData.shared) m.dispose(); }); } }); }
+function clearGroup(g){ g.children.slice().forEach(function(c){ disposeObj(c); g.remove(c); }); }
+/* 매 프레임 바뀌는 선: 버퍼를 새로 만들지 않고 다시 씀 */
+function setPos(obj,arr){
+  var g=obj.geometry, a=g.getAttribute('position');
+  if(!a||a.array.length<arr.length){ g.dispose(); g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(Math.max(96,arr.length*2)),3)); obj.geometry=g; a=g.getAttribute('position'); a.setUsage(THREE.DynamicDrawUsage); obj.frustumCulled=false; }
+  a.array.set(arr); a.needsUpdate=true; g.setDrawRange(0,arr.length/3);
+}
 var UP=new THREE.Vector3(0,1,0);
 
 function buildEnv(){
-  envGroup.clear();
+  clearGroup(envGroup);
   setTimeout(function(){envGroup.traverse(function(o){if(o.isMesh){o.receiveShadow=!o.material.transparent; o.castShadow=!o.material.transparent;}});},0);
   var g=CFG.gap/2;
   if(S.mission==='bridge'){
@@ -1789,12 +1840,38 @@ function autoLoads(){
 }
 
 /* ---------- 분석 ---------- */
+/* 모든 연결발이 한 평면 위에 있는지: 있으면 {n:법선, a:한 점} */
+function planeOf(nodes){
+  if(nodes.length<3) return null;
+  var a=nodes[0], n=null;
+  for(var i=1;i<nodes.length&&!n;i++) for(var j=i+1;j<nodes.length&&!n;j++){
+    var u=[nodes[i].x-a.x,nodes[i].y-a.y,nodes[i].z-a.z], v=[nodes[j].x-a.x,nodes[j].y-a.y,nodes[j].z-a.z];
+    var c=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]], L=Math.hypot(c[0],c[1],c[2]);
+    if(L>1e-6) n=[c[0]/L,c[1]/L,c[2]/L];
+  }
+  if(!n) return null;
+  for(var k=0;k<nodes.length;k++){var p=nodes[k]; if(Math.abs((p.x-a.x)*n[0]+(p.y-a.y)*n[1]+(p.z-a.z)*n[2])>1e-3) return null;}
+  return {n:n,a:a};
+}
+/* 평면 구조의 면외(앞뒤) 방향만 막는 보조 받침을 붙인 해석 모델 */
+function augmentPlanar(members){
+  var d={}; members.forEach(function(m){d[m.a]=d[m.b]=1;});
+  var act=S.nodes.filter(function(n){return d[n.id];}), pl=planeOf(act); if(!pl) return null;
+  var nodes=S.nodes.slice(), mem=members.slice(), aux={}, id=1e7;
+  act.forEach(function(n){ if(isSupport(n)) return; var k=id++; nodes.push({id:k,x:n.x+pl.n[0]*10,y:n.y+pl.n[1]*10,z:n.z+pl.n[2]*10}); aux[k]=1; mem.push({id:k,a:n.id,b:k}); });
+  return {model:{nodes:nodes,members:mem}, isSupport:function(n){return !!aux[n.id]||isSupport(n);}, plane:pl};
+}
+function capOpt(){return {tension:CFG.tension,comp:CFG.comp,buckleB:CFG.buckleB};}
 function runAnalysis(){
   var d=degreeMap();
   effLoads=S.loads.filter(function(id){return d[id];});
   R={autoLoad:false};
   if(!effLoads.length){effLoads=autoLoads(); R.autoLoad=true;}
-  var res=TrussCore.analyze(S,{isSupport:isSupport,loads:effLoads,cap:{tension:CFG.tension,comp:CFG.comp,buckleB:CFG.buckleB}});
+  var ag=CFG.planar2D?augmentPlanar(S.members):null;
+  var res=ag?TrussCore.analyze(ag.model,{isSupport:ag.isSupport,loads:effLoads,cap:capOpt()})
+            :TrussCore.analyze(S,{isSupport:isSupport,loads:effLoads,cap:capOpt()});
+  res.planar2D=!!ag;
+  if(!ag&&res.stable===false){ var ag2=augmentPlanar(S.members); if(ag2){ res.planarOK=TrussCore.analyze(ag2.model,{isSupport:ag2.isSupport,loads:effLoads,cap:capOpt()}).stable===true; } }
   res.autoLoad=R.autoLoad; R=res;
 }
 
@@ -1806,8 +1883,8 @@ ghostDot.scale.setScalar(1.1); helperGroup.add(ghostLine,ghostDot); ghostLine.vi
 
 function rebuild(){
   Object.keys(nodeMeshes).forEach(function(k){structGroup.remove(nodeMeshes[k]);}); nodeMeshes={};
-  memberMeshes.forEach(function(o){structGroup.remove(o);}); memberMeshes=[];
-  supVis.clear(); loadVis.clear();
+  memberMeshes.forEach(function(o){structGroup.remove(o); o.material.dispose();}); memberMeshes=[];
+  clearGroup(supVis); clearGroup(loadVis);
   var d=degreeMap();
   S.nodes.forEach(function(n){
     var mesh=new THREE.Mesh(sphGeo,M.node); mesh.scale.setScalar(0.95); mesh.userData={type:'node',id:n.id}; mesh.castShadow=true;
@@ -1825,7 +1902,7 @@ function rebuild(){
   placeAll(0);
 }
 function buildLoadVis(){
-  loadVis.clear(); bagGroup=null; ropeLine=null;
+  clearGroup(loadVis); bagGroup=null; ropeLine=null;
   if(!effLoads.length) return;
   var pts=effLoads.map(nodeById).filter(Boolean); if(!pts.length) return;
   bagGroup=new THREE.Group(); loadVis.add(bagGroup);
@@ -1912,9 +1989,20 @@ function fmtLen(L){return (Math.round(L*10)/10).toFixed(1).replace(/\.0$/,'')+'c
 
 /* ---------- 선택(레이캐스트) ---------- */
 var ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
-function setMouse(e){var r=renderer.domElement.getBoundingClientRect(); mouse.x=(e.clientX-r.left)/r.width*2-1; mouse.y=-(e.clientY-r.top)/r.height*2+1; ray.setFromCamera(mouse,camera);}
-function pickNode(){var objs=Object.keys(nodeMeshes).map(function(k){return nodeMeshes[k];}); var hit=ray.intersectObjects(objs,false)[0]; return hit?hit.object.userData.id:null;}
-function pickMember(){var prev=ray.params.Mesh; var hit=ray.intersectObjects(memberMeshes,false)[0]; return hit?hit.object.userData.id:null;}
+var ptr={x:-1e4,y:-1e4,touch:false};
+function setMouse(e){var r=renderer.domElement.getBoundingClientRect(); ptr={x:e.clientX-r.left,y:e.clientY-r.top,touch:e.pointerType==='touch'||e.pointerType==='pen'}; mouse.x=ptr.x/r.width*2-1; mouse.y=-ptr.y/r.height*2+1; ray.setFromCamera(mouse,camera);}
+var tmpS=new THREE.Vector3();
+function toScreen(v){var r=renderer.domElement.getBoundingClientRect(); tmpS.copy(v).project(camera); return {x:(tmpS.x+1)/2*r.width,y:(1-tmpS.y)/2*r.height,z:tmpS.z};}
+function pickRadius(base){return ptr.touch?base*1.9:base;}
+/* 화면에서 가장 가까운 것 고르기 (손가락으로도 누르기 쉽게 반경을 넉넉히) */
+function nearestScreen(list,posOf,rad){var best=null,bd=rad*rad,bz=2; list.forEach(function(it){var s=toScreen(posOf(it)); if(s.z>1||s.z<-1) return; var dx=s.x-ptr.x,dy=s.y-ptr.y,d=dx*dx+dy*dy; if(d<bd-4||(d<bd+4&&s.z<bz)){bd=d;bz=s.z;best=it;}}); return best;}
+function pickNode(){var k=nearestScreen(Object.keys(nodeMeshes),function(id){return nodeMeshes[id].position;},pickRadius(14)); return k?+k:null;}
+function pickMember(){
+  var best=null,bd=pickRadius(9); bd*=bd;
+  S.members.forEach(function(m){var A=nodeMeshes[m.a],B=nodeMeshes[m.b]; if(!A||!B) return; var a=toScreen(A.position),b=toScreen(B.position); if(a.z>1||b.z>1) return;
+    var vx=b.x-a.x,vy=b.y-a.y,L2=vx*vx+vy*vy||1,t=Math.max(0,Math.min(1,((ptr.x-a.x)*vx+(ptr.y-a.y)*vy)/L2)); var dx=a.x+vx*t-ptr.x,dy=a.y+vy*t-ptr.y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=m.id;}});
+  return best;
+}
 function pickPlane(){
   var pl;
   if(plane==='XY') pl=new THREE.Plane(new THREE.Vector3(0,0,1),-planeOff);
@@ -1937,7 +2025,7 @@ function updateHover(e){
   if(nid){hover.node=nid; var n=nodeById(nid); if(tool==='build'||tool==='move'||tool==='stamp') hover.point={x:n.x,y:n.y,z:n.z};}
   else if(tool==='delete'){hover.member=pickMember();}
   if(hoverCand){hoverCand.material=hoverCand.userData.base; hoverCand=null;}
-  if(!nid&&tool==='build'&&candMeshes.length){var ch=ray.intersectObjects(candMeshes,false)[0]; if(ch){hoverCand=ch.object; hoverCand.material=candMatHot; var cp=ch.object.userData.p; var ex=findNodeAt(cp); if(ex) hover.node=ex.id; hover.point={x:cp.x,y:cp.y,z:cp.z}; hover.valid=true; nid=-1;}}
+  if(!nid&&tool==='build'&&candMeshes.length){var ch=nearestScreen(candMeshes,function(m){return m.position;},pickRadius(15)); if(ch){hoverCand=ch; hoverCand.material=candMatHot; var cp=ch.userData.p; var ex=findNodeAt(cp); if(ex) hover.node=ex.id; hover.point={x:cp.x,y:cp.y,z:cp.z}; hover.valid=true; nid=-1;}}
   if(!nid&&(tool==='build'||tool==='stamp'||(tool==='move'&&moveSel))){var p=pickPlane(); if(p){hover.point=p; hover.valid=pointValid(p);}}
   if(tool==='move'&&moveSel&&hover.node&&hover.node!==moveSel) hover.valid=false;
   renderer.domElement.style.cursor=(hover.node||hover.member||hover.point)?'pointer':'default';
@@ -1950,7 +2038,7 @@ function updateGhost(){
   if(tool==='stamp'){
     var sh=stampShape(hover.point), arr=[];
     sh.edges.forEach(function(e){var a=sh.pts[e[0]],b=sh.pts[e[1]]; arr.push(a.x,a.y,a.z,b.x,b.y,b.z);});
-    stampGhost.geometry.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));
+    setPos(stampGhost,arr);
     stampGhost.material.color.setHex(sh.pts.every(pointValid)?0x2f5d8a:0xc2255c); stampGhost.visible=true;
     ghostDot.material=M.ghost; ghostDot.position.set(hover.point.x,hover.point.y,hover.point.z); ghostDot.visible=true; return;
   }
@@ -1968,12 +2056,13 @@ var candMeshes=[], candKey='', reach=10, hoverCand=null;
 var candMat=new THREE.MeshBasicMaterial({color:0x2f5d8a,transparent:true,opacity:.28,depthWrite:false});
 var candMatJoin=new THREE.MeshBasicMaterial({color:0x2b8a3e,transparent:true,opacity:.55,depthWrite:false});
 var candMatHot=new THREE.MeshBasicMaterial({color:0xd4480c,transparent:true,opacity:.9});
+candMat.userData.shared=candMatJoin.userData.shared=candMatHot.userData.shared=true;
 function candLimit(p){var lim=S.mission==='bridge'?{x:60,y:[-35,60],z:30}:S.mission==='free'?{x:60,y:[0,80],z:40}:{x:40,y:[0,70],z:40}; return Math.abs(p.x)<=lim.x&&p.y>=lim.y[0]&&p.y<=lim.y[1]&&Math.abs(p.z)<=lim.z;}
 function refreshCands(){
   var s=(tool==='build'&&chain&&!SIM&&$('#showCands').checked)?chainPos():null;
   var key=s?[s.x,s.y,s.z,reach,S.members.length,S.nodes.length].join(','):'';
   if(key===candKey) return; candKey=key;
-  candGroup.clear(); candMeshes=[]; hoverCand=null;
+  clearGroup(candGroup); candMeshes=[]; hoverCand=null;
   if(!s) return;
   for(var i=-1;i<=1;i++)for(var j=-1;j<=1;j++)for(var k=-1;k<=1;k++){
     var n=Math.abs(i)+Math.abs(j)+Math.abs(k); if(n===0||n===3) continue;
@@ -1998,8 +2087,7 @@ function updateDrops(){
   if(!on) return;
   var a=[],d=[],v=new THREE.Vector3();
   S.nodes.forEach(function(n){ var mesh=nodeMeshes[n.id]; if(!mesh) return; v.copy(mesh.position); if(Math.abs(v.y)<0.3) return; a.push(v.x,v.y,v.z,v.x,0,v.z); d.push(v.x,0,v.z); });
-  dropLines.geometry.setAttribute('position',new THREE.Float32BufferAttribute(a,3));
-  dropDots.geometry.setAttribute('position',new THREE.Float32BufferAttribute(d,3));
+  setPos(dropLines,a); setPos(dropDots,d);
 }
 $('#showDrop').onchange=function(){updateDrops();};
 /* ---------- 천천히 돌려 보기 ---------- */
@@ -2030,7 +2118,9 @@ function onClick(btn){
     if(!moveSel){ if(hover.node){moveSel=hover.node; var mn=nodeById(moveSel); var ax2=planeAxis(); if(planeOff!==mn[ax2]) setOff(mn[ax2]); refreshHint(); placeAll(animT);} return; }
     if(hover.node===moveSel){moveSel=null;refreshHint();return;}
     if(!hover.point||!hover.valid||hover.node){flash('다른 연결발이 없는 빈 자리를 골라 주세요.');return;}
-    snap(); var node=nodeById(moveSel); node.x=hover.point.x; node.y=hover.point.y; node.z=hover.point.z; moveSel=null; changed(); return;
+    var occ=findNodeAt(hover.point); if(occ&&occ.id!==moveSel){flash('그 자리에는 이미 연결발이 있어요.');return;}
+    snap(); var node=nodeById(moveSel); node.x=hover.point.x; node.y=hover.point.y; node.z=hover.point.z; moveSel=null;
+    S.members=S.members.filter(function(m){return memberLen(m)>1e-6;}); changed(); return;
   }
   if(tool==='delete'){
     if(hover.node){snap(); var id=hover.node; S.members=S.members.filter(function(m){return m.a!==id&&m.b!==id;}); S.nodes=S.nodes.filter(function(n){return n.id!==id;}); removeOrphans(); changed(); return;}
@@ -2088,12 +2178,14 @@ function flash(msg){var b=$('#banner');  b.textContent=msg; b.classList.add('sho
 function updateBanner(){
   var b=$('#banner'); b.classList.remove('show'); 
   if(!R||R.empty) return;
+  if(R.stable===false&&R.planarOK){b.innerHTML='⚠ 이 평면 트러스는 <b>평면 안에서는 튼튼</b>해요. 하지만 한 장뿐이라 <b>앞뒤로 쓰러져요</b>. 「뒤로 한 장 더 붙이기」로 입체를 만들어 보세요.'; b.classList.add('show'); return;}
   if(R.stable===false){b.innerHTML='⚠ <b>흔들리는 구조</b>예요. <b style="color:#c2255c">자주색</b>으로 커진 연결발 근처에 대각선을 넣어 <b>삼각형</b>을 만들어 보세요.'+($('#showShake').checked?'':' <span style="opacity:.7">(움직이는 모습: 왼쪽 표시 → 흔들리는 모습 움직이기)</span>'); b.classList.add('show'); return;}
   if(R.loadOnSupport&&R.loadOnSupport===R.loads.length){b.textContent='추가 받침점 위에 걸려 있어서 구조가 힘을 받지 않아요. 추 거는 곳을 바꿔 보세요.'; b.classList.add('show');}
 }
 function updatePanels(){
   var d=degreeMap(), pipes=S.members.length;
   $('#statusChip').textContent='파이프 '+pipes+'개 · 연결발 '+S.nodes.length+'개';
+  $('#planarChip').hidden=!(R&&R.planar2D);
   // 미션 조건
   var C=[];
   var act=S.nodes.filter(function(n){return d[n.id];});
@@ -2207,7 +2299,7 @@ function syncLoadSeg(){var lm=isHang()?'hang':'place'; $$('#loadSeg button').for
 $$('#loadSeg button').forEach(function(b){b.onclick=function(){ if((isHang()?'hang':'place')===b.dataset.l) return; snap(); S.loadMode=b.dataset.l; S.loads=[]; changed(); flash(b.dataset.l==='hang'?'S자 고리로 봉지를 연결발 아래에 걸어요.':'받침판을 연결발 위에 얹고 그 위에 추를 올려요.'); };});
 
 /* ---------- 상단 버튼 ---------- */
-$('#undo').onclick=undo;
+$('#undo').onclick=undo; $('#redo').onclick=redo;
 $('#clear').onclick=function(){ if(!S.members.length) return; if(!confirm('설계를 모두 지울까요? (되돌리기로 살릴 수 있어요)')) return; snap(); var t=S.team,m=S.mission; S=blank(m); S.team=t; chain=null; changed(); };
 $('#team').oninput=function(){S.team=this.value; store('truss.autosave',JSON.stringify(S));};
 function fileName(ext){var t=(S.team||'모둠').replace(/[\\/:*?"<>|]/g,'_'); var m={bridge:'다리',tower:'탑',free:'자유구조'}[S.mission]||'설계'; return t+'_'+m+'_설계.'+ext;}
@@ -2216,7 +2308,13 @@ $('#save').onclick=function(){download(fileName('json'),new Blob([JSON.stringify
 $('#open').onclick=function(){$('#file').click();};
 $('#file').onchange=function(e){
   var f=e.target.files[0]; if(!f) return; var rd=new FileReader();
-  rd.onload=function(){ try{ var o=JSON.parse(rd.result); if(!o.nodes||!o.members) throw 0; snap(); S=Object.assign(blank(o.mission),o); $('#team').value=S.team||''; setMission(S.mission,true);}catch(err){alert('설계 파일을 읽지 못했어요.');} };
+  if(f.size>5e6){alert('파일이 너무 커요. 이 실험실에서 저장한 .json 파일을 열어 주세요.'); e.target.value=''; return;}
+  rd.onerror=function(){alert('파일을 읽지 못했어요.');};
+  rd.onload=function(){
+    var o; try{ o=sanitizeModel(JSON.parse(rd.result)); }catch(err){ alert('설계 파일을 읽지 못했어요.\n이 실험실에서 저장한 .json 파일인지 확인해 주세요.'+(err&&err.message?'\n('+err.message+')':'')); return; }
+    if(SIM) simStop(); snap(); S=o; $('#team').value=S.team||''; setMission(S.mission,true);
+    if(!S.members.length) flash('파일은 열었지만 파이프가 없어요.');
+  };
   rd.readAsText(f); e.target.value='';
 };
 var exSel=$('#examples');
@@ -2252,13 +2350,13 @@ $('#png').onclick=function(){
 };
 
 /* ---------- 설정 ---------- */
-function fillSettings(){ $('#cGap').value=CFG.gap; $('#cH').value=CFG.towerH; $('#cMax').value=CFG.maxPipes; $('#cPorts').value=CFG.maxPorts; $('#cGrid').value=String(CFG.grid); $('#cEx').value=String(CFG.showEx); $('#cT').value=CFG.tension; $('#cC').value=CFG.comp; $('#cB').value=CFG.buckleB; $('#cBag').value=CFG.bagG; $('#cBot').value=CFG.bottleG; $('#cBots').value=CFG.bottles; }
+function fillSettings(){ $('#cGap').value=CFG.gap; $('#cH').value=CFG.towerH; $('#cMax').value=CFG.maxPipes; $('#cPorts').value=CFG.maxPorts; $('#cGrid').value=String(CFG.grid); $('#cEx').value=String(CFG.showEx); $('#cT').value=CFG.tension; $('#cC').value=CFG.comp; $('#cB').value=CFG.buckleB; $('#cBag').value=CFG.bagG; $('#cBot').value=CFG.bottleG; $('#cBots').value=CFG.bottles; $('#cPlanar').value=String(CFG.planar2D||0); }
 $('#settingsBtn').onclick=function(){fillSettings(); $('#setDlg').showModal();};
 $('#setReset').onclick=function(){CFG=Object.assign({},CFG_DEFAULT); fillSettings();};
 $('#setOk').onclick=function(){
   function num(id,def){var v=parseFloat($(id).value); return isFinite(v)&&v>0?v:def;}
   CFG.gap=num('#cGap',40); CFG.towerH=num('#cH',40); CFG.maxPipes=Math.round(num('#cMax',60)); CFG.maxPorts=Math.round(num('#cPorts',8));
-  CFG.grid=parseFloat($('#cGrid').value)||5; CFG.showEx=+$('#cEx').value; CFG.tension=num('#cT',2); CFG.comp=num('#cC',4); CFG.buckleB=num('#cB',400); CFG.bagG=Math.max(0,parseFloat($('#cBag').value)||0); CFG.bottleG=num('#cBot',520); CFG.bottles=Math.max(0,Math.round(parseFloat($('#cBots').value)||0));
+  CFG.grid=parseFloat($('#cGrid').value)||5; CFG.planar2D=+$('#cPlanar').value||0; CFG.showEx=+$('#cEx').value; CFG.tension=num('#cT',2); CFG.comp=num('#cC',4); CFG.buckleB=num('#cB',400); CFG.bagG=Math.max(0,parseFloat($('#cBag').value)||0); CFG.bottleG=num('#cBot',520); CFG.bottles=Math.max(0,Math.round(parseFloat($('#cBots').value)||0));
   store('truss.cfg',JSON.stringify(CFG)); $('#setDlg').close(); applyCfg(); buildEnv(); buildPlane(); changed();
 };
 function applyCfg(){ exSel.style.display=CFG.showEx?'':'none'; }
@@ -2267,6 +2365,7 @@ $('#helpBtn').onclick=function(){$('#helpDlg').showModal();};
 /* ---------- 키보드 ---------- */
 window.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||document.querySelector('dialog[open]')) return;
+  if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){e.preventDefault(); redo(); return;}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault(); undo(); return;}
   if(e.key==='Escape'){chain=null; moveSel=null; refreshHint(); updateGhost(); return;}
   var k={'1':'build','2':'move','3':'delete','4':'load','5':'stamp','6':'support'}[e.key]; if(k){setTool(k);return;}
@@ -2276,7 +2375,7 @@ window.addEventListener('keydown',function(e){
 
 /* ---------- 추 걸기 시뮬레이션 ---------- */
 var SIM=null, simTimer=null, MAT_Y=-70.9;
-var bentMat=new THREE.MeshLambertMaterial({color:0x8a1414});
+var bentMat=new THREE.MeshLambertMaterial({color:0x8a1414}); bentMat.userData.shared=true;
 function simSteps(){
   var st=[], tot=CFG.bagG;
   st.push({g:tot,w:0,b:0,label:isHang()?'빈 봉지':'받침판'});
@@ -2287,7 +2386,10 @@ function simSteps(){
 function simAnalyze(){
   var alive=[], mem=[];
   S.members.forEach(function(m,i){ if(!SIM.failed.has(i)){alive.push(i); mem.push(m);} });
-  var res=TrussCore.analyze({nodes:S.nodes,members:mem},{isSupport:isSupport,loads:effLoads,cap:{tension:CFG.tension,comp:CFG.comp,buckleB:CFG.buckleB}});
+  var ag=CFG.planar2D?augmentPlanar(mem):null;
+  var res=ag?TrussCore.analyze(ag.model,{isSupport:ag.isSupport,loads:effLoads,cap:capOpt()})
+            :TrussCore.analyze({nodes:S.nodes,members:mem},{isSupport:isSupport,loads:effLoads,cap:capOpt()});
+  if(ag&&SIM) SIM.plane=ag.plane;
   return {R:res, alive:alive};
 }
 function fmtG(g){return Math.round(g).toLocaleString()+' g';}
@@ -2302,7 +2404,7 @@ function simStart(auto){
   if(R0.stable&&isFinite(R0.Pmax)&&R0.dmax>0) SIM.k=2.5/(R0.dmax*R0.Pmax);
   $('#simLog').innerHTML='';
   document.body.classList.add('simming');
-  candKey='x'; candGroup.clear(); candMeshes=[];
+  candKey='x'; clearGroup(candGroup); candMeshes=[];
   buildLoadVis();
   simNext();
   if(auto) simAuto(true);
@@ -2409,7 +2511,7 @@ function placeFailed(m,i,mesh){
 var bagGroup=null, ropeLine=null;
 function rebuildBag(st){
   if(!bagGroup) return;
-  bagGroup.clear();
+  clearGroup(bagGroup);
   var w=st?st.w:3, b=st?st.b:0;
   if(isHang()){
     var bh=Math.max(12,b?16:12);
@@ -2435,7 +2537,7 @@ function updateLoadVis(t){
     var hook=new THREE.Vector3(top.x,top.y+16,top.z);
     var arr=[]; pts.forEach(function(p){arr.push(p.x,p.y,p.z,hook.x,hook.y,hook.z);}); arr.push(hook.x,hook.y,hook.z,top.x,top.y,top.z);
     if(SIM&&SIM.P){arr=[]; pts.forEach(function(p){arr.push(p.x,p.y,p.z,top.x,top.y,top.z);});}
-    ropeLine.geometry.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));
+    setPos(ropeLine,arr);
     bagGroup.position.copy(top);
   }else{
     if(SIM&&SIM.P&&SIM.bagI!==undefined){var q2=SIM.P[SIM.bagI]; bagGroup.position.set(q2.x,q2.y,q2.z);}
@@ -2475,6 +2577,7 @@ function startCollapse(){
 function fric(p){p.px=p.x-(p.x-p.px)*0.25; p.pz=p.z-(p.z-p.pz)*0.25; p.py=p.y;}
 function ground(p){
   if(!p.w) return;
+  if(SIM&&SIM.plane){var pl=SIM.plane, dd=(p.x-pl.a.x)*pl.n[0]+(p.y-pl.a.y)*pl.n[1]+(p.z-pl.a.z)*pl.n[2]; p.x-=pl.n[0]*dd; p.y-=pl.n[1]*dd; p.z-=pl.n[2]*dd;}
   if(S.mission!=='bridge'){ if(p.y-p.off<0){p.y=p.off; fric(p);} return; }
   if(Math.abs(p.x)>CFG.gap/2&&p.py-p.off>=-0.3&&p.y-p.off<0){p.y=p.off; fric(p);}
   if(p.y-p.off<MAT_Y){p.y=MAT_Y+p.off; fric(p);}

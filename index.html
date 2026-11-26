@@ -47,6 +47,27 @@ a.card:hover .go span{transform:translateX(4px)}
 .how{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .how div{border-left:3px solid var(--comp);background:var(--card);border-radius:0 12px 12px 0;padding:12px 16px;font-size:14.5px}
 .how b{display:block;font-size:15px}
+.join{margin-top:40px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px}
+.qr{width:168px;height:168px;background:#fff;border-radius:12px;padding:8px;border:1px solid var(--line)}
+.qr svg{width:100%;height:100%;display:block}
+.join h2{font-family:var(--f-display);font-size:22px;margin:0 0 4px}
+.join .sub{color:var(--muted);font-size:14.5px;margin:0 0 12px}
+.addr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+.addr .k{font-size:12.5px;color:var(--muted);min-width:60px}
+.addr code{font-family:var(--f-num);font-size:14.5px;background:var(--soft);border-radius:8px;padding:5px 10px;word-break:break-all}
+.btn{font:inherit;font-size:13.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:9px;padding:5px 11px;cursor:pointer;transition:border-color .2s}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700;padding:8px 14px}
+.big{position:fixed;inset:0;background:color-mix(in srgb,var(--paper) 96%,transparent);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:10;padding:24px;text-align:center}
+.big.on{display:flex}
+.big .qrbig{width:min(70vh,82vw);height:min(70vh,82vw);background:#fff;border-radius:18px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.big .qrbig svg{width:100%;height:100%;display:block}
+.big .t{font-family:var(--f-display);font-weight:900;font-size:clamp(22px,4vw,36px)}
+.big code{font-family:var(--f-num);font-size:clamp(14px,2.2vw,22px)}
+.seg{display:inline-flex;background:var(--soft);border-radius:11px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;font:inherit;padding:6px 14px;border-radius:8px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+@media (max-width:760px){.join{grid-template-columns:1fr;justify-items:center;text-align:center}.addr{justify-content:center}}
 footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media (max-width:760px){
   .wrap{padding-top:32px}
@@ -99,6 +120,18 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-si
     </a>
   </nav>
 
+  <section class="join" aria-label="학생 접속">
+    <div class="qr" id="qrSmall"><svg aria-label="3D 실험실 QR 코드" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h35v35H0z"/><path stroke="#1f1d1a" d="M1 1.5h7m1 0h1m2 0h2m1 0h1m4 0h3m1 0h1m2 0h7M1 2.5h1m5 0h1m1 0h1m1 0h2m2 0h1m1 0h2m5 0h2m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h2m3 0h2m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h1m6 0h2m2 0h3m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m4 0h1m4 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m2 0h2m2 0h4m1 0h1m2 0h1m4 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m2 0h2m1 0h4m1 0h1m3 0h2M1 9.5h1m1 0h2m1 0h3m3 0h1m2 0h5m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2M1 10.5h1m2 0h2m3 0h1m2 0h3m3 0h5m1 0h1m2 0h2m1 0h2m1 0h1M2 11.5h1m1 0h6m4 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h4m1 0h2M2 12.5h1m1 0h2m3 0h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h6m1 0h1m1 0h2M2 13.5h1m1 0h2m1 0h2m1 0h2m3 0h1m1 0h1m6 0h3m2 0h2M1 14.5h3m1 0h2m1 0h1m1 0h2m3 0h1m5 0h1m3 0h2m1 0h1m1 0h1m1 0h1M7 15.5h1m3 0h2m1 0h1m5 0h1m1 0h1m2 0h1m1 0h1m1 0h2M1 16.5h1m4 0h1m3 0h1m1 0h1m2 0h2m2 0h1m1 0h4m1 0h2m2 0h2M2 17.5h2m3 0h2m2 0h3m1 0h1m3 0h5m2 0h2m1 0h3M1 18.5h3m1 0h1m6 0h2m1 0h2m2 0h1m1 0h2m1 0h2m1 0h1m1 0h2m2 0h1M4 19.5h2m1 0h1m1 0h1m1 0h1m2 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2M3 20.5h4m1 0h1m2 0h4m3 0h3m4 0h3m1 0h1M2 21.5h3m1 0h4m1 0h1m4 0h2m4 0h1m5 0h1m1 0h2M1 22.5h1m4 0h1m1 0h3m3 0h4m2 0h2m2 0h4m2 0h1m2 0h1M3 23.5h5m1 0h1m1 0h1m2 0h3m1 0h2m4 0h2m1 0h2m3 0h2M2 24.5h1m1 0h2m2 0h2m1 0h3m2 0h1m2 0h3m2 0h1m2 0h2m1 0h1m2 0h1M1 25.5h1m1 0h1m1 0h1m1 0h1m1 0h1m4 0h1m3 0h1m1 0h1m2 0h1m1 0h5M9 26.5h2m2 0h5m2 0h4m1 0h1m3 0h2M1 27.5h7m1 0h1m2 0h2m1 0h1m1 0h4m2 0h3m1 0h1m1 0h1M1 28.5h1m5 0h1m1 0h1m3 0h1m3 0h6m1 0h2m3 0h3M1 29.5h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h14m1 0h3M1 30.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m2 0h1m3 0h1m1 0h1m2 0h1M1 31.5h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h6m2 0h4m1 0h2m1 0h2M1 32.5h1m5 0h1m3 0h4m3 0h1m4 0h1m1 0h1m1 0h4m2 0h1M1 33.5h7m1 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1"/></svg>
+</div>
+    <div>
+      <h2>학생 접속</h2>
+      <p class="sub">휴대폰·태블릿 카메라로 QR을 찍으면 3D 실험실이 바로 열려요.</p>
+      <div class="addr"><span class="k">3D 실험실</span><code id="uLab"></code><button class="btn" data-copy="uLab">복사</button></div>
+      <div class="addr"><span class="k">첫 화면</span><code id="uHome"></code><button class="btn" data-copy="uHome">복사</button></div>
+      <div style="margin-top:12px"><button class="btn pri" id="bigBtn">⛶ QR 크게 보기 (화면에 띄우기)</button></div>
+    </div>
+  </section>
+
   <section class="how" aria-label="사용 안내">
     <div><b>발표자료</b>← → 로 넘기기 · F 전체화면 · N 진행 메모</div>
     <div><b>3D 실험실</b>노트북·PC에서 쓰세요 (가로 1000px 이상 권장)</div>
@@ -110,5 +143,40 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-si
     <span>버티는 구조의 비밀: 삼각형으로 설계하는 4D프레임 챌린지</span>
   </footer>
 </main>
+<div class="big" id="big" role="dialog" aria-modal="true" aria-label="QR 크게 보기">
+  <div class="seg" id="bigSeg"><button class="on" data-k="lab">3D 실험실</button><button data-k="home">첫 화면</button></div>
+  <div class="t" id="bigTitle">3D 트러스 설계 실험실</div>
+  <div class="qrbig" id="qrLab"><svg aria-label="3D 실험실 QR 코드" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h35v35H0z"/><path stroke="#1f1d1a" d="M1 1.5h7m1 0h1m2 0h2m1 0h1m4 0h3m1 0h1m2 0h7M1 2.5h1m5 0h1m1 0h1m1 0h2m2 0h1m1 0h2m5 0h2m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h2m3 0h2m1 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m1 0h1m6 0h2m2 0h3m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m4 0h1m4 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m2 0h2m2 0h4m1 0h1m2 0h1m4 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m2 0h2m1 0h4m1 0h1m3 0h2M1 9.5h1m1 0h2m1 0h3m3 0h1m2 0h5m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2M1 10.5h1m2 0h2m3 0h1m2 0h3m3 0h5m1 0h1m2 0h2m1 0h2m1 0h1M2 11.5h1m1 0h6m4 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h4m1 0h2M2 12.5h1m1 0h2m3 0h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h6m1 0h1m1 0h2M2 13.5h1m1 0h2m1 0h2m1 0h2m3 0h1m1 0h1m6 0h3m2 0h2M1 14.5h3m1 0h2m1 0h1m1 0h2m3 0h1m5 0h1m3 0h2m1 0h1m1 0h1m1 0h1M7 15.5h1m3 0h2m1 0h1m5 0h1m1 0h1m2 0h1m1 0h1m1 0h2M1 16.5h1m4 0h1m3 0h1m1 0h1m2 0h2m2 0h1m1 0h4m1 0h2m2 0h2M2 17.5h2m3 0h2m2 0h3m1 0h1m3 0h5m2 0h2m1 0h3M1 18.5h3m1 0h1m6 0h2m1 0h2m2 0h1m1 0h2m1 0h2m1 0h1m1 0h2m2 0h1M4 19.5h2m1 0h1m1 0h1m1 0h1m2 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2M3 20.5h4m1 0h1m2 0h4m3 0h3m4 0h3m1 0h1M2 21.5h3m1 0h4m1 0h1m4 0h2m4 0h1m5 0h1m1 0h2M1 22.5h1m4 0h1m1 0h3m3 0h4m2 0h2m2 0h4m2 0h1m2 0h1M3 23.5h5m1 0h1m1 0h1m2 0h3m1 0h2m4 0h2m1 0h2m3 0h2M2 24.5h1m1 0h2m2 0h2m1 0h3m2 0h1m2 0h3m2 0h1m2 0h2m1 0h1m2 0h1M1 25.5h1m1 0h1m1 0h1m1 0h1m1 0h1m4 0h1m3 0h1m1 0h1m2 0h1m1 0h5M9 26.5h2m2 0h5m2 0h4m1 0h1m3 0h2M1 27.5h7m1 0h1m2 0h2m1 0h1m1 0h4m2 0h3m1 0h1m1 0h1M1 28.5h1m5 0h1m1 0h1m3 0h1m3 0h6m1 0h2m3 0h3M1 29.5h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h14m1 0h3M1 30.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m2 0h1m3 0h1m1 0h1m2 0h1M1 31.5h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h6m2 0h4m1 0h2m1 0h2M1 32.5h1m5 0h1m3 0h4m3 0h1m4 0h1m1 0h1m1 0h4m2 0h1M1 33.5h7m1 0h3m2 0h2m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1"/></svg>
+</div>
+  <div class="qrbig" id="qrHome" style="display:none"><svg aria-label="첫 화면 QR 코드" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h35v35H0z"/><path stroke="#1f1d1a" d="M1 1.5h7m4 0h1m2 0h1m4 0h3m1 0h1m2 0h7M1 2.5h1m5 0h1m2 0h2m1 0h1m2 0h2m1 0h1m1 0h2m4 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m4 0h3m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h2m2 0h1m5 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h3m3 0h3m3 0h1m1 0h1m3 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h2m2 0h1m1 0h1m4 0h1m2 0h3m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h3m3 0h1m1 0h4m1 0h1M1 9.5h1m1 0h5m4 0h1m1 0h2m2 0h1m1 0h1m2 0h3m1 0h5M2 10.5h1m2 0h1m2 0h1m2 0h1m2 0h1m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1M1 11.5h1m3 0h3m2 0h2m2 0h5m2 0h1m1 0h1m5 0h1m1 0h2M1 12.5h1m2 0h1m4 0h1m2 0h3m2 0h5m2 0h1m2 0h1m1 0h3m1 0h1M4 13.5h2m1 0h1m4 0h2m1 0h1m1 0h1m3 0h6m2 0h2M6 14.5h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m2 0h1m2 0h3m3 0h3M1 15.5h1m1 0h3m1 0h2m1 0h4m2 0h2m1 0h1m1 0h1m1 0h1m2 0h3m1 0h3M4 16.5h1m1 0h1m2 0h3m1 0h2m1 0h1m2 0h1m2 0h3m1 0h2m2 0h2M1 17.5h1m3 0h1m1 0h1m1 0h2m1 0h5m1 0h1m4 0h4m1 0h2m3 0h1M1 18.5h1m1 0h4m3 0h1m4 0h1m1 0h1m2 0h5m1 0h3m1 0h4M4 19.5h1m1 0h2m1 0h2m1 0h6m1 0h1m2 0h1m3 0h1m1 0h2m1 0h2M6 20.5h1m1 0h4m3 0h2m3 0h5m1 0h1m1 0h4m1 0h1M1 21.5h1m5 0h3m1 0h3m5 0h2m1 0h1m2 0h2m2 0h2m1 0h1M1 22.5h2m1 0h3m2 0h1m1 0h1m1 0h5m3 0h1m1 0h5m2 0h1m2 0h1M1 23.5h1m3 0h3m2 0h1m1 0h3m5 0h1m1 0h1m7 0h3M1 24.5h1m3 0h2m1 0h5m1 0h1m2 0h1m2 0h8m1 0h5M1 25.5h1m1 0h2m1 0h3m2 0h2m2 0h1m2 0h1m1 0h1m2 0h1m1 0h5m3 0h1M9 26.5h2m1 0h4m1 0h4m2 0h3m3 0h1m1 0h1m1 0h1M1 27.5h7m2 0h2m4 0h1m1 0h1m4 0h3m1 0h1m1 0h1m1 0h2M1 28.5h1m5 0h1m1 0h1m2 0h2m1 0h1m1 0h5m2 0h2m3 0h3M1 29.5h1m1 0h3m1 0h1m1 0h1m2 0h3m2 0h1m2 0h4m1 0h6m1 0h1M1 30.5h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h1m2 0h1m2 0h1m1 0h3m2 0h3m1 0h1M1 31.5h1m1 0h3m1 0h1m1 0h2m5 0h4m1 0h5m1 0h2m1 0h2M1 32.5h1m5 0h1m2 0h2m1 0h1m2 0h1m2 0h1m2 0h3m4 0h1m1 0h1M1 33.5h7m1 0h1m4 0h1m1 0h1m1 0h2m3 0h6m3 0h1"/></svg>
+</div>
+  <code id="bigUrl"></code>
+  <button class="btn" id="bigClose">닫기 (Esc)</button>
+</div>
+<script>
+(function(){
+  var base='https://sewoongyun.github.io/4dframe-truss/';
+  var U={lab:base+'lab.html', home:base};
+  var $=function(id){return document.getElementById(id);};
+  $('uLab').textContent=U.lab; $('uHome').textContent=U.home;
+  document.querySelectorAll('[data-copy]').forEach(function(b){
+    b.onclick=function(){
+      var txt=$(b.dataset.copy).textContent;
+      var done=function(){var o=b.textContent; b.textContent='복사됨 ✓'; setTimeout(function(){b.textContent=o;},1400);};
+      try{ navigator.clipboard.writeText(txt).then(done,function(){fallback(txt);done();}); }catch(e){ fallback(txt); done(); }
+    };
+  });
+  function fallback(txt){var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove();}
+  var cur='lab';
+  function show(k){cur=k; $('qrLab').style.display=k==='lab'?'':'none'; $('qrHome').style.display=k==='home'?'':'none';
+    $('bigTitle').textContent=k==='lab'?'3D 트러스 설계 실험실':'버티는 구조의 비밀';
+    $('bigUrl').textContent=U[k];
+    document.querySelectorAll('#bigSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.k===k);});}
+  document.querySelectorAll('#bigSeg button').forEach(function(b){b.onclick=function(){show(b.dataset.k);};});
+  $('bigBtn').onclick=function(){show(cur); $('big').classList.add('on');};
+  $('bigClose').onclick=function(){$('big').classList.remove('on');};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape') $('big').classList.remove('on');});
+})();
+</script>
 </body>
 </html>
