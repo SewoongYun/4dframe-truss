@@ -208,6 +208,62 @@ a.yt{display:inline-flex;align-items:center;gap:10px;background:#ff0033;color:#f
   </div>
 </section>
 
+<!-- 8-1. 압축과 인장 자세히 -->
+<section class="slide" data-note="<b>압축·인장 정의 (1분 30초)</b> 슬라이더나 「힘 키우기」로 힘을 키우면, 압축 파이프는 어느 순간 옆으로 휘며 꺾이고(좌굴), 인장 파이프는 연결발에서 빠집니다. 같은 파이프라도 놓인 자리에 따라 둘 중 하나를 받는다는 점, 4D프레임에서 압축은 '길이', 인장은 '꽂은 깊이'가 중요하다는 점을 강조합니다. 시연: 빨대를 양손으로 눌러 보기(휨) / 당겨 보기(거의 안 늘어남).">
+  <div class="kicker">힘의 종류 자세히</div>
+  <h2>압축과 인장, 정확히 무엇일까?</h2>
+  <div class="cols" style="gap:40px;align-items:start">
+    <div class="card" style="padding:22px 26px">
+      <h3 style="font-size:32px;margin:0 0 4px"><span class="c">압축</span> · 양 끝을 <b>안으로 민다</b></h3>
+      <svg width="640" height="230" viewBox="0 0 640 230" id="ctSvgC"></svg>
+      <p style="margin:4px 0 0;font-size:24px">→ 파이프가 <b>짧아지려</b> 한다</p>
+      <p class="small" style="margin:6px 0 0">예: 의자 다리 · 건물 기둥 · 탑의 기둥</p>
+      <p style="margin:10px 0 0;font-size:23px">4D프레임에서는 <b class="c">옆으로 휘며 꺾인다</b> (좌굴)<br><span class="small">길이가 2배면 약 4배 약해진다 → 짧은 파이프가 유리</span></p>
+    </div>
+    <div class="card" style="padding:22px 26px">
+      <h3 style="font-size:32px;margin:0 0 4px"><span class="t">인장</span> · 양 끝을 <b>밖으로 당긴다</b></h3>
+      <svg width="640" height="230" viewBox="0 0 640 230" id="ctSvgT"></svg>
+      <p style="margin:4px 0 0;font-size:24px">→ 파이프가 <b>늘어나려</b> 한다</p>
+      <p class="small" style="margin:6px 0 0">예: 줄다리기 줄 · 그네 줄 · 추를 매단 끈</p>
+      <p style="margin:10px 0 0;font-size:23px">4D프레임에서는 <b class="t">연결발에서 쑥 빠진다</b><br><span class="small">길이보다 끝까지 깊이 꽂는 것이 중요</span></p>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 260px;gap:30px;align-items:center;margin-top:18px">
+    <div><div class="slabel"><span>양 끝에 주는 힘</span><b id="ctVal">0</b></div><input type="range" id="ctF" min="0" max="100" value="0"></div>
+    <button class="ui" id="ctAuto">▶ 힘 키우기</button>
+  </div>
+</section>
+
+<!-- 8-2. 어느 쪽인지 알아내기 -->
+<section class="slide" data-note="<b>판단법 (1분 30초)</b> '이 파이프를 빼면 양 끝 연결발이 어떻게 될까?' 밑변을 빼면 두 발이 벌어지며 주저앉습니다(양 끝이 멀어짐) → 밑변은 붙잡고 당기던 것 = 인장. 빗변을 빼면 꼭대기가 쓰러져 양 끝이 가까워집니다 → 빗변은 밀어서 받치던 것 = 압축. 두 번째 방법: 끈으로 바꿔도 버티면 인장, 무너지면 압축(끈은 당기기만 견딤). 활동지 1-4번을 이 방법으로 풀게 합니다.">
+  <div class="kicker">판단하는 방법</div>
+  <h2>어느 쪽일까? <span style="color:var(--accent)">빼 보면 안다</span></h2>
+  <div style="display:grid;grid-template-columns:760px 1fr;gap:44px;align-items:start">
+    <div class="card" style="padding:18px 20px;text-align:center">
+      <svg width="720" height="420" viewBox="0 0 720 420" id="rmSvg"></svg>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:6px">
+        <button class="ui" id="rmBase">밑변 빼 보기</button><button class="ui" id="rmLeg">빗변 빼 보기</button><button class="ui" id="rmReset">↺ 처음으로</button>
+      </div>
+      <div id="rmMsg" style="margin-top:14px;font-size:25px;line-height:1.5;min-height:76px"></div>
+    </div>
+    <div>
+      <div class="card" style="padding:22px 26px;margin-bottom:16px">
+        <h3 style="font-size:28px">이 파이프를 빼면 양 끝 연결발이…</h3>
+        <p style="margin:6px 0 0;font-size:27px"><b>멀어진다</b> → 붙잡고 있었다 → <span class="t">인장</span></p>
+        <p style="margin:4px 0 0;font-size:27px"><b>가까워진다</b> → 밀어내고 있었다 → <span class="c">압축</span></p>
+      </div>
+      <div class="card frag" style="padding:22px 26px;margin-bottom:16px">
+        <h3 style="font-size:28px">또 다른 방법: 끈으로 바꿔 보기</h3>
+        <p style="margin:6px 0 0;font-size:25px">끈은 <b>당기는 힘만</b> 견딘다<br>끈으로 바꿔도 버틴다 → <span class="t">인장</span><br>바로 무너진다 → <span class="c">압축</span></p>
+      </div>
+      <div class="card frag" style="padding:22px 26px">
+        <h3 style="font-size:28px">몸으로 느껴 보기</h3>
+        <p style="margin:6px 0 0;font-size:25px">두 사람이 손바닥을 맞대고 밀기 → <span class="c">압축</span><br>손을 잡고 당기기 → <span class="t">인장</span> · 팔이 곧 파이프</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- 9. 하중은 절점에 -->
 <section class="slide" data-note="<b>거는 위치 (40초)</b> 파이프 한가운데에 추를 걸면 파이프가 휘어 쉽게 부러진다. 연결발(절점)에 걸면 파이프는 눌리거나 당겨지는 힘만 받는다. 그래서 오늘은 반드시 연결발에 고리를 겁니다.">
   <div class="kicker">추를 거는 곳</div>
@@ -699,6 +755,60 @@ function drawForce(h){
   $('#fC').textContent='압축 '+Fc.toFixed(2)+' 배'; $('#fT').textContent='인장 '+Ft.toFixed(2)+' 배';
 }
 $('#hRange').oninput=function(e){drawForce(+e.target.value);}; drawForce(100);
+
+/* ---------- 8-1. 압축 · 인장 자세히 ---------- */
+var ctAnim=null;
+function pushArrow(s,x1,x2,y,col){ var dir=x2>x1?1:-1; el('line',{x1:x1,y1:y,x2:x2-dir*14,y2:y,stroke:col,'stroke-width':7,'stroke-linecap':'round'},s); el('path',{d:'M'+x2+' '+y+' L'+(x2-dir*22)+' '+(y-13)+' L'+(x2-dir*22)+' '+(y+13)+' Z',fill:col},s); }
+function conn(s,x,y){ el('rect',{x:x-18,y:y-24,width:36,height:48,rx:8,fill:'#3d3a33'},s); }
+function drawCT(f){
+  $('#ctVal').textContent=Math.round(f);
+  var s=$('#ctSvgC'); s.innerHTML=''; var y=110, A=150, B=490, bow=f>45?(f-45)*1.5:0;
+  el('path',{d:'M'+A+' '+y+' Q 320 '+(y-2*bow)+' '+B+' '+y,fill:'none',stroke:COMP,'stroke-width':14,'stroke-linecap':'round'},s);
+  conn(s,A,y); conn(s,B,y);
+  var len=20+f*0.9; pushArrow(s,A-30-len,A-22,y,COMP); pushArrow(s,B+30+len,B+22,y,COMP);
+  txt(s,320,205,f<=45?(f<5?'':'버티는 중 · 조금씩 짧아지려 함'):'휘기 시작! → 꺾인다 (좌굴)',{'font-size':24,'font-weight':700,fill:f<=45?SUB:COMP,'text-anchor':'middle'});
+  var t=$('#ctSvgT'); t.innerHTML=''; var gap=f>55?(f-55)*1.4:0, R=470+gap;
+  el('line',{x1:150,y1:y,x2:470,y2:y,stroke:TENS,'stroke-width':14,'stroke-linecap':'round'},t);
+  conn(t,150,y); conn(t,R+20,y);
+  var len2=20+f*0.9; pushArrow(t,150-30,150-30-len2,y,TENS); pushArrow(t,R+50,R+50+len2,y,TENS);
+  txt(t,320,205,f<=55?(f<5?'':'버티는 중 · 조금씩 늘어나려 함'):(gap>20?'연결발에서 빠졌다!':'빠지기 시작!'),{'font-size':24,'font-weight':700,fill:f<=55?SUB:TENS,'text-anchor':'middle'});
+}
+$('#ctF').oninput=function(e){cancelAnimationFrame(ctAnim); drawCT(+e.target.value);};
+$('#ctAuto').onclick=function(){ cancelAnimationFrame(ctAnim); var t0=performance.now(); (function f(t){var k=Math.min(1,(t-t0)/2600), v=100*k; $('#ctF').value=v; drawCT(v); if(k<1) ctAnim=requestAnimationFrame(f);})(t0); };
+drawCT(0);
+
+/* ---------- 8-2. 빼 보면 안다 ---------- */
+var rmState='none', rmK=0, rmAnim=null;
+function drawRM(){
+  var s=$('#rmSvg'); s.innerHTML='';
+  var Lf=[160,330], Rf0=[560,330], P0=[360,150], Lg=Math.hypot(200,180);
+  var Rf=Rf0.slice(), P=P0.slice(), info='';
+  if(rmState==='base'){ var d=400+120*rmK; Rf=[Lf[0]+d,330]; P=[Lf[0]+d/2,330-Math.sqrt(Math.max(0,Lg*Lg-d*d/4))]; }
+  if(rmState==='leg'){ var a0=Math.atan2(P0[1]-Rf0[1],P0[0]-Rf0[0]), a1=Math.PI-0.13, a=a0+(a1-a0)*rmK; P=[Rf0[0]+Lg*Math.cos(a),Rf0[1]+Lg*Math.sin(a)]; }
+  el('line',{x1:40,y1:372,x2:690,y2:372,stroke:'#cfc8ba','stroke-width':4},s);
+  // 다리 · 밑변
+  var gone={stroke:'#b9b2a4','stroke-width':6,'stroke-dasharray':'12 10',opacity:.8};
+  if(rmState==='base') el('line',Object.assign({x1:Lf[0],y1:Lf[1],x2:Rf[0],y2:Rf[1]},gone),s); else bar(s,Lf,Rf,rmState==='none'?TENS:'#3d3a33',12);
+  if(rmState==='leg') el('line',Object.assign({x1:Lf[0],y1:Lf[1],x2:P[0],y2:P[1]},gone),s); else bar(s,Lf,P,rmState==='none'?COMP:'#3d3a33',12);
+  bar(s,Rf,P,rmState==='none'?COMP:'#3d3a33',12);
+  [Lf,Rf,P].forEach(function(p){joint(s,p,12,'#1f1d1a');});
+  support(s,Lf); support(s,Rf,true);
+  arrowDown(s,[P[0],P[1]-6],70,'');
+  // 뺀 파이프의 양 끝 거리
+  if(rmState!=='none'){
+    var e1=rmState==='base'?Lf:Lf, e2=rmState==='base'?Rf:P, d0=rmState==='base'?400:Lg, dn=Math.hypot(e2[0]-e1[0],e2[1]-e1[1]);
+    var mx=360, my=44;
+    var far=dn>d0+1, near=dn<d0-1;
+    txt(s,mx,my,'양 끝 거리 '+Math.round(d0/4)+' → '+Math.round(dn/4)+(far?'  멀어짐':near?'  가까워짐':''),{'font-size':24,'font-weight':700,fill:far?TENS:near?COMP:SUB,'text-anchor':'middle'});
+  }
+  var m=$('#rmMsg');
+  if(rmState==='none') m.innerHTML='<span class="sub">버튼을 눌러 파이프를 하나 빼 보세요.</span>';
+  else if(rmK>=1) m.innerHTML=rmState==='base'?'두 발이 <b>멀어졌다</b> → 밑변은 두 발을 <b>붙잡고 당기고</b> 있었다 → <b class="t">인장</b>':'꼭대기가 쓰러져 양 끝이 <b>가까워졌다</b> → 빗변은 꼭대기를 <b>밀어서 받치고</b> 있었다 → <b class="c">압축</b>';
+  else m.innerHTML='<span class="sub">어떻게 될까요…</span>';
+}
+function rmPlay(st){ cancelAnimationFrame(rmAnim); rmState=st; rmK=0; drawRM(); if(st==='none') return; var t0=performance.now()+350; (function f(t){rmK=Math.max(0,Math.min(1,(t-t0)/1400)); rmK=rmK*rmK*(3-2*rmK); drawRM(); if(t-t0<1400) rmAnim=requestAnimationFrame(f);})(performance.now()); }
+$('#rmBase').onclick=function(){rmPlay('base');}; $('#rmLeg').onclick=function(){rmPlay('leg');}; $('#rmReset').onclick=function(){rmPlay('none');};
+drawRM();
 
 /* ---------- 9. 휨 vs 절점 ---------- */
 (function(){
