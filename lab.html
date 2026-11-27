@@ -79,7 +79,8 @@ aside#right{border-left:1px solid var(--line);padding-top:0}
 .hint{margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--muted);background:var(--soft);border-radius:10px;padding:9px 11px}
 .hint b{color:var(--ink)}
 .minis{display:grid;gap:4px;background:var(--soft);padding:3px;border-radius:11px}
-.minis.c3{grid-template-columns:repeat(3,1fr)} .minis.c4{grid-template-columns:repeat(4,1fr)}
+.minis.c3{grid-template-columns:repeat(3,1fr)} .minis.c4{grid-template-columns:repeat(4,1fr)} .minis.c5{grid-template-columns:repeat(5,1fr)} .minis.c6{grid-template-columns:repeat(6,1fr)}
+.mini .dot{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:3px;vertical-align:1px}
 .mini{border:0;background:transparent;border-radius:8px;padding:6px 2px;font-size:12.5px;color:var(--muted)}
 .mini:hover{color:var(--ink)}
 .mini.on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
@@ -180,7 +181,7 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
   </div>
   <span class="seg-label hide-sm">추</span>
   <div class="seg" id="loadSeg" title="추를 어떻게 달까요?">
-    <button data-l="hang" title="S자 고리로 봉지를 연결발 아래에 매답니다">⤓ 걸기</button>
+    <button data-l="hang" title="C자 고리로 봉지를 연결발 아래에 매답니다">⤓ 걸기</button>
     <button data-l="place" title="연결발 위에 받침판을 얹고 추를 올립니다">⤒ 올리기</button>
   </div>
   <div class="spacer"></div>
@@ -220,10 +221,10 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
           <button class="shape" data-s="prism" title="삼각기둥 (옆면 대각선 포함)"><svg viewBox="0 0 40 34"><path d="M4 30 L22 30 L13 22 Z M4 12 L22 12 L13 4 Z M4 30 V12 M22 30 V12 M13 22 V4 M4 30 L22 12"/></svg>삼각기둥</button>
           <button class="shape" data-s="cube" title="정육면체 (모든 면에 대각선)"><svg viewBox="0 0 40 34"><path d="M4 31 H26 V9 H4 Z M26 31 L35 24 V2 L26 9 M4 9 L13 2 H35 M4 31 L26 9"/></svg>정육면체</button>
         </div>
-        <div class="row"><span class="muted">한 변</span><div class="minis c4" id="sizeSeg" style="flex:1"><button class="mini" data-v="5">5</button><button class="mini on" data-v="10">10</button><button class="mini" data-v="15">15</button><button class="mini" data-v="20">20</button></div><span class="muted">cm</span></div>
+        <div class="row"><span class="muted">한 변</span><div class="minis c5" id="sizeSeg" style="flex:1"></div><span class="muted">cm</span></div>
       </div>
       <div class="stampbox" id="buildOpts">
-        <div class="row" style="margin-top:0"><span class="muted">뻗는 길이</span><div class="minis c4" id="reachSeg" style="flex:1"><button class="mini" data-v="5">5</button><button class="mini on" data-v="10">10</button><button class="mini" data-v="15">15</button><button class="mini" data-v="20">20</button></div><span class="muted">cm</span></div>
+        <div class="row" style="margin-top:0"><span class="muted">파이프</span><div class="minis c5" id="reachSeg" style="flex:1"></div><span class="muted">cm</span></div>
         <label class="sw-row"><span>뻗을 수 있는 곳 보기</span><input type="checkbox" id="showCands" checked></label>
         <label class="sw-row" style="margin-bottom:0" title="켜면 파이프를 만든 뒤 그 끝에서 바로 이어서 뻗습니다"><span>연달아 이어 그리기</span><input type="checkbox" id="keepChain"></label>
       </div>
@@ -243,7 +244,7 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
     <div class="sec">
       <h3>만들기 도우미</h3>
       <button class="hbtn" id="dupBtn" style="width:100%;text-align:left" title="지금 구조를 뒤쪽으로 한 장 더 복사하고 가로대로 잇습니다">⧉ 뒤로 한 장 더 붙이기</button>
-      <div class="row"><span class="muted">간격</span><div class="minis c4" id="dupSeg" style="flex:1"><button class="mini" data-v="5">5</button><button class="mini on" data-v="10">10</button><button class="mini" data-v="15">15</button><button class="mini" data-v="20">20</button></div><span class="muted">cm</span></div>
+      <div class="row"><span class="muted">간격</span><div class="minis c5" id="dupSeg" style="flex:1"></div><span class="muted">cm</span></div>
       <div class="muted" style="margin-top:6px">정면판에 트러스 한 장을 그린 뒤 누르면 입체가 됩니다.</div>
     </div>
     <div class="sec">
@@ -332,14 +333,14 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
   <h2>사용법</h2>
   <ol>
     <li><b>미션</b>을 고릅니다. A는 두 책상 사이에 다리를 놓고 가운데에 추를 겁니다. B는 탑을 세우고 꼭대기에 추를 올립니다.</li>
-    <li><b>파이프 잇기</b>(1): <b>클릭 두 번에 파이프 1개</b>예요. ① 뻗을 연결발(처음에는 바닥·책상 윗면의 점)을 클릭해 고르면 주변에 <b>뻗을 수 있는 곳</b>이 파란 점으로 보여요. ② 파란 점(새 연결발)이나 초록 점(이미 있는 연결발)을 누르면 파이프가 생기고 선택이 풀립니다. <b>뻗는 길이</b>(5~20cm)를 바꿀 수 있고, 익숙해지면 <b>연달아 이어 그리기</b>를 켜서 계속 이어 그릴 수 있어요.</li>
+    <li><b>파이프 잇기</b>(1): <b>클릭 두 번에 파이프 1개</b>예요. ① 뻗을 연결발(처음에는 바닥·책상 윗면의 점)을 클릭해 고르면 주변에 <b>뻗을 수 있는 곳</b>이 파란 점으로 보여요. ② 파란 점(새 연결발)이나 초록 점(이미 있는 연결발)을 누르면 파이프가 생기고 선택이 풀립니다. <b>파이프</b> 버튼으로 교구 길이(10·7·6·5·3cm)를 고르면 그 파이프가 닿는 곳만 보여요(대각선 포함), 익숙해지면 <b>연달아 이어 그리기</b>를 켜서 계속 이어 그릴 수 있어요.</li>
     <li>잘 안 보이면 <b>↻ 천천히 돌려 보기</b>를 누르거나, 마우스로 끌어서 돌려 보세요. 연결발에서 바닥까지 내려오는 <b>높이 보조선</b>과 그림자로 높이를 알 수 있어요.</li>
     <li><b>작업 평면</b>(고급): 멀리 떨어진 곳에 점을 직접 찍고 싶을 때 씁니다.</li>
     <li>다리 미션에서는 <b>책상 윗면(높이 0)</b>에 놓인 연결발이, 탑 미션에서는 <b>바닥(높이 0)</b>에 놓인 연결발이 받침점이 됩니다. (초록 받침 표시)</li>
     <li><b>C 자유</b> 미션에서는 바닥 위에 원하는 구조를 마음대로 만들 수 있어요. <b>받침점</b>(6) 도구로 고정할 연결발을 직접 정합니다.</li>
     <li><b>도형 찍기</b>(5): 삼각형·사면체·삼각기둥 같은 도형을 클릭 한 번에 놓습니다. 닿는 연결발끼리는 저절로 이어져서 블록처럼 쌓을 수 있어요.</li>
     <li><b>뒤로 한 장 더 붙이기</b>: 정면판에 트러스 한 장을 그린 뒤 누르면 똑같은 한 장을 뒤에 만들고 가로대로 이어 입체로 만들어 줍니다.</li>
-    <li><b>추 다는 방식</b>: 위쪽의 <b>걸기</b>는 S자 고리로 봉지를 연결발 아래에 매달고, <b>올리기</b>는 연결발 위에 받침판을 얹어 추를 올립니다. 두 미션 모두 고를 수 있어요.</li>
+    <li><b>추 다는 방식</b>: 위쪽의 <b>걸기</b>는 C자 고리로 봉지를 연결발 아래에 매달고, <b>올리기</b>는 연결발 위에 받침판을 얹어 추를 올립니다. 두 미션 모두 고를 수 있어요.</li>
     <li><b>추 거는 곳</b>(4): 추를 걸 연결발을 클릭합니다. 정하지 않으면 다리는 가운데 연결발(걸기는 가장 낮은 곳, 올리기는 가장 높은 곳), 탑은 꼭대기 연결발로 자동으로 정해집니다. 여러 곳을 고르면 무게가 똑같이 나뉩니다.</li>
     <li>구조가 <b>흔들리면</b> 흔들리는 연결발이 <b style="color:#c2255c">자주색</b>으로 크게 표시됩니다. 그곳에 대각선을 넣어 삼각형을 만들어 보세요. 실제로 흔들리는 모습은 왼쪽 <b>표시 → 흔들리는 모습 움직이기</b>를 켜면 볼 수 있어요. (움직이는 동안에는 클릭하기 어려우니 고칠 때는 꺼 두세요.)</li>
     <li>구조가 안정되면 파이프가 <b style="color:var(--comp)">빨강(압축)</b>·<b style="color:var(--tens)">파랑(인장)</b>으로 칠해지고, 노란색으로 깜빡이는 파이프가 가장 먼저 무너질 곳입니다.</li>
@@ -354,7 +355,8 @@ dialog::backdrop{background:rgba(20,18,12,.45);backdrop-filter:blur(2px)}
     <span>다리: 두 책상 사이 간격 (cm)</span><input type="number" id="cGap" min="10" max="100" step="5">
     <span>탑: 최소 높이 (cm)</span><input type="number" id="cH" min="10" max="100" step="5">
     <span>파이프 최대 개수</span><input type="number" id="cMax" min="5" max="500" step="1">
-    <span>연결발 최대 구멍 수 (n구)</span><input type="number" id="cPorts" min="3" max="12" step="1">
+    <span>교구 파이프 길이 (cm, 쉼표로)</span><input type="text" id="cKit" placeholder="10,7,6,5,3">
+    <span>연결발 최대 발 수 (n발)</span><input type="number" id="cPorts" min="3" max="12" step="1">
     <span>격자 간격 (cm)</span><select id="cGrid"><option value="2.5">2.5</option><option value="5">5</option><option value="10">10</option></select>
     <span>봉지(받침판) 무게 (g)</span><input type="number" id="cBag" min="0" step="1">
     <span>물병 1개 무게 (g)</span><input type="number" id="cBot" min="1" step="1">
@@ -1545,13 +1547,13 @@ var TrussCore = (function () {
 })();
 if (typeof module !== 'undefined') module.exports = TrussCore;
 </script>
-<script>/* ===== 예시 구조물 ===== */
+<script>/* ===== 예시 구조 (4D프레임 수학창의교구(中): 파이프 10·7·6·5·3cm) ===== */
 var TrussTemplates = (function () {
   function Builder(mission, name) {
     var nodes = [], members = [], nid = 1, mid = 1;
     function key(x, y, z) { return [x, y, z].map(function (v) { return Math.round(v * 1000) / 1000; }).join(','); }
     var map = {};
-    function n(x, y, z) { var k = key(x, y, z); if (map[k]) return map[k]; var id = nid++; nodes.push({ id: id, x: x, y: y, z: z }); map[k] = id; return id; }
+    function n(x, y, z) { var k = key(x, y, z); if (map[k]) return map[k]; var id = nid++; nodes.push({ id: id, x: Math.round(x * 1000) / 1000, y: Math.round(y * 1000) / 1000, z: Math.round(z * 1000) / 1000 }); map[k] = id; return id; }
     function e(p, q) {
       var a = n(p[0], p[1], p[2]), b = n(q[0], q[1], q[2]);
       if (a === b) return;
@@ -1563,27 +1565,27 @@ var TrussTemplates = (function () {
   }
 
   var list = [
-    { key: 'flatWarren', mission: 'bridge', title: '다리 ① 평면 워런 트러스 (한 장)', note: '삼각형으로만 만들었지만 한 장뿐이라 옆으로 쓰러집니다.' },
+    { key: 'flatWarren', mission: 'bridge', title: '다리 ① 평면 워런 트러스 (한 장)', note: '10cm 파이프로 정삼각형만 만들었지만 한 장뿐이라 옆으로 쓰러집니다.' },
     { key: 'boxOnly', mission: 'bridge', title: '다리 ② 사각형만으로 만든 상자 다리', note: '대각선이 없어서 찌그러집니다.' },
-    { key: 'triWarren', mission: 'bridge', title: '다리 ③ 삼각 단면 워런 다리', note: '아래 두 줄, 위 한 줄로 만든 입체 트러스입니다.' },
-    { key: 'prattBox', mission: 'bridge', title: '다리 ④ 프랫 상자 다리', note: '두 장의 프랫 트러스를 가로대와 가새로 이었습니다.' },
+    { key: 'triWarren', mission: 'bridge', title: '다리 ③ 정삼각형 입체 다리 (10cm)', note: '모든 파이프가 10cm인 정삼각형·정사면체로 만든 입체 트러스입니다.' },
+    { key: 'prattBox', mission: 'bridge', title: '다리 ④ 프랫 상자 다리 (7cm + 대각선 10cm)', note: '7cm 정사각형에 10cm 대각선을 넣었습니다. 7·7·10은 거의 직각이등변삼각형이에요.' },
     { key: 'sqTowerBare', mission: 'tower', title: '탑 ⑤ 사각 탑 (대각선 없음)', note: '기둥과 가로대만 있어서 옆으로 기울어집니다.' },
-    { key: 'sqTowerBraced', mission: 'tower', title: '탑 ⑥ 사각 탑 + 대각선', note: '각 면에 대각선을 넣어 삼각형을 만들었습니다.' },
-    { key: 'triTower', mission: 'tower', title: '탑 ⑦ 삼각 탑', note: '삼각기둥의 각 면에 대각선을 넣었습니다.' }
+    { key: 'sqTowerBraced', mission: 'tower', title: '탑 ⑥ 사각 탑 + 대각선 (7cm·10cm)', note: '각 면에 10cm 대각선을 넣어 삼각형을 만들었습니다.' },
+    { key: 'triTower', mission: 'tower', title: '탑 ⑦ 삼각 탑 (7cm·10cm)', note: '삼각기둥의 각 면에 10cm 대각선을 넣었습니다.' }
   ];
 
   function make(key) {
-    var B, x, z, y, i;
+    var B, x, y, i;
     var item = list.filter(function (t) { return t.key === key; })[0];
     if (!item) return null;
     B = Builder(item.mission, item.title);
-    if (key === 'flatWarren') {
-      var h = 8.66;
+    if (key === 'flatWarren') { // 정삼각형 10cm
+      var h = 5 * Math.sqrt(3);
       for (x = -30; x < 30; x += 10) B.e([x, 0, 0], [x + 10, 0, 0]);
       for (x = -25; x < 25; x += 10) B.e([x, h, 0], [x + 10, h, 0]);
       for (x = -25; x <= 25; x += 10) { B.e([x - 5, 0, 0], [x, h, 0]); B.e([x, h, 0], [x + 5, 0, 0]); }
     }
-    if (key === 'boxOnly') {
+    if (key === 'boxOnly') { // 10cm 상자
       [-5, 5].forEach(function (zz) {
         for (x = -30; x < 30; x += 10) { B.e([x, 0, zz], [x + 10, 0, zz]); B.e([x, 10, zz], [x + 10, 10, zz]); }
         for (x = -30; x <= 30; x += 10) B.e([x, 0, zz], [x, 10, zz]);
@@ -1591,43 +1593,49 @@ var TrussTemplates = (function () {
       for (x = -30; x <= 30; x += 10) { B.e([x, 0, -5], [x, 0, 5]); B.e([x, 10, -5], [x, 10, 5]); }
     }
     if (key === 'triWarren') {
-      var ht = 8;
-      [-5, 5].forEach(function (zz) { for (x = -30; x < 30; x += 10) B.e([x, 0, zz], [x + 10, 0, zz]); });
-      for (x = -30; x <= 30; x += 10) B.e([x, 0, -5], [x, 0, 5]);
-      for (x = -25; x < 25; x += 10) B.e([x, ht, 0], [x + 10, ht, 0]);
-      for (x = -25; x <= 25; x += 10) [-5, 5].forEach(function (zz) { B.e([x, ht, 0], [x - 5, 0, zz]); B.e([x, ht, 0], [x + 5, 0, zz]); });
-      for (x = -30; x < 30; x += 10) B.e([x, 0, (x / 10) % 2 === 0 ? -5 : 5], [x + 10, 0, (x / 10) % 2 === 0 ? 5 : -5]);
+      // 아랫면: 정삼각형 띠(앞줄 x=-25..25, 뒷줄 x=-20..20, 폭 8.66) → 모든 변 10cm
+      // 아랫면의 모든 삼각형 위에 정사면체(모서리 10cm)를 세우고, 같은 줄 꼭짓점끼리 10cm로 잇기
+      var w = 5 * Math.sqrt(3), zf = -w / 2, zb = w / 2, ht = 10 * Math.sqrt(2 / 3);
+      for (x = -25; x < 25; x += 10) B.e([x, 0, zf], [x + 10, 0, zf]);
+      for (x = -20; x < 20; x += 10) B.e([x, 0, zb], [x + 10, 0, zb]);
+      for (x = -20; x <= 20; x += 10) { B.e([x - 5, 0, zf], [x, 0, zb]); B.e([x, 0, zb], [x + 5, 0, zf]); }
+      var up = [], dn = [], c1 = (2 * zf + zb) / 3, c2 = (2 * zb + zf) / 3;
+      for (x = -20; x <= 20; x += 10) { var a = [x, ht, c1]; B.e(a, [x - 5, 0, zf]); B.e(a, [x + 5, 0, zf]); B.e(a, [x, 0, zb]); up.push(a); }
+      for (x = -15; x <= 15; x += 10) { var b = [x, ht, c2]; B.e(b, [x - 5, 0, zb]); B.e(b, [x + 5, 0, zb]); B.e(b, [x, 0, zf]); dn.push(b); }
+      for (i = 0; i + 1 < up.length; i++) B.e(up[i], up[i + 1]);
+      for (i = 0; i + 1 < dn.length; i++) B.e(dn[i], dn[i + 1]);
     }
-    if (key === 'prattBox') {
-      [-5, 5].forEach(function (zz) {
-        for (x = -30; x < 30; x += 10) B.e([x, 0, zz], [x + 10, 0, zz]);
-        for (x = -20; x < 20; x += 10) B.e([x, 10, zz], [x + 10, 10, zz]);
-        B.e([-30, 0, zz], [-20, 10, zz]); B.e([30, 0, zz], [20, 10, zz]);
-        for (x = -20; x <= 20; x += 10) B.e([x, 0, zz], [x, 10, zz]);
-        B.e([-20, 10, zz], [-10, 0, zz]); B.e([-10, 10, zz], [0, 0, zz]);
-        B.e([20, 10, zz], [10, 0, zz]); B.e([10, 10, zz], [0, 0, zz]);
+    if (key === 'prattBox') { // 7cm 정사각형 + 10cm(≈9.9) 대각선
+      var s = 7, X0 = -28, X1 = 28;
+      [-3.5, 3.5].forEach(function (zz) {
+        for (x = X0; x < X1; x += s) B.e([x, 0, zz], [x + s, 0, zz]);
+        for (x = X0 + s; x < X1 - s; x += s) B.e([x, s, zz], [x + s, s, zz]);
+        B.e([X0, 0, zz], [X0 + s, s, zz]); B.e([X1, 0, zz], [X1 - s, s, zz]);
+        for (x = X0 + s; x <= X1 - s; x += s) B.e([x, 0, zz], [x, s, zz]);
+        for (x = X0 + s; x < 0; x += s) B.e([x, s, zz], [x + s, 0, zz]);
+        for (x = X1 - s; x > 0; x -= s) B.e([x, s, zz], [x - s, 0, zz]);
       });
-      for (x = -30; x <= 30; x += 10) B.e([x, 0, -5], [x, 0, 5]);
-      for (x = -20; x <= 20; x += 10) B.e([x, 10, -5], [x, 10, 5]);
-      for (x = -30; x < 30; x += 10) B.e([x, 0, -5], [x + 10, 0, 5]);
-      for (x = -20; x < 20; x += 10) B.e([x, 10, -5], [x + 10, 10, 5]);
-      B.e([-20, 0, -5], [-20, 10, 5]); B.e([20, 0, -5], [20, 10, 5]);
+      for (x = X0; x <= X1; x += s) B.e([x, 0, -3.5], [x, 0, 3.5]);
+      for (x = X0 + s; x <= X1 - s; x += s) B.e([x, s, -3.5], [x, s, 3.5]);
+      for (x = X0, i = 0; x < X1; x += s, i++) B.e([x, 0, i % 2 ? 3.5 : -3.5], [x + s, 0, i % 2 ? -3.5 : 3.5]);
+      for (x = X0 + s, i = 0; x < X1 - s; x += s, i++) B.e([x, s, i % 2 ? 3.5 : -3.5], [x + s, s, i % 2 ? -3.5 : 3.5]);
+      B.e([X0 + s, 0, -3.5], [X0 + s, s, 3.5]); B.e([X1 - s, 0, -3.5], [X1 - s, s, 3.5]);
     }
-    if (key === 'sqTowerBare' || key === 'sqTowerBraced') {
-      var c = [[-5, -5], [5, -5], [5, 5], [-5, 5]];
-      for (y = 0; y <= 40; y += 10) for (i = 0; i < 4; i++) B.e([c[i][0], y, c[i][1]], [c[(i + 1) % 4][0], y, c[(i + 1) % 4][1]]);
-      for (y = 0; y < 40; y += 10) for (i = 0; i < 4; i++) B.e([c[i][0], y, c[i][1]], [c[i][0], y + 10, c[i][1]]);
-      if (key === 'sqTowerBraced') for (y = 0; y < 40; y += 10) for (i = 0; i < 4; i++) {
-        var j = (i + 1) % 4, flip = ((y / 10) % 2 === 0);
-        if (flip) B.e([c[i][0], y, c[i][1]], [c[j][0], y + 10, c[j][1]]); else B.e([c[j][0], y, c[j][1]], [c[i][0], y + 10, c[i][1]]);
+    if (key === 'sqTowerBare' || key === 'sqTowerBraced') { // 7cm 정사각형, 층 높이 7cm, 6층 = 42cm
+      var c = [[-3.5, -3.5], [3.5, -3.5], [3.5, 3.5], [-3.5, 3.5]], H = 42, L = 7;
+      for (y = 0; y <= H; y += L) for (i = 0; i < 4; i++) B.e([c[i][0], y, c[i][1]], [c[(i + 1) % 4][0], y, c[(i + 1) % 4][1]]);
+      for (y = 0; y < H; y += L) for (i = 0; i < 4; i++) B.e([c[i][0], y, c[i][1]], [c[i][0], y + L, c[i][1]]);
+      if (key === 'sqTowerBraced') for (y = 0; y < H; y += L) for (i = 0; i < 4; i++) {
+        var j = (i + 1) % 4, flip = (Math.round(y / L) % 2 === 0);
+        if (flip) B.e([c[i][0], y, c[i][1]], [c[j][0], y + L, c[j][1]]); else B.e([c[j][0], y, c[j][1]], [c[i][0], y + L, c[i][1]]);
       }
     }
-    if (key === 'triTower') {
-      var r = 10 / Math.sqrt(3), t = [0, 1, 2].map(function (k) { var a = Math.PI / 2 + k * 2 * Math.PI / 3; return [Math.round(r * Math.cos(a) * 100) / 100, Math.round(r * Math.sin(a) * 100) / 100]; });
-      for (y = 0; y <= 40; y += 10) for (i = 0; i < 3; i++) B.e([t[i][0], y, t[i][1]], [t[(i + 1) % 3][0], y, t[(i + 1) % 3][1]]);
-      for (y = 0; y < 40; y += 10) for (i = 0; i < 3; i++) {
-        B.e([t[i][0], y, t[i][1]], [t[i][0], y + 10, t[i][1]]);
-        B.e([t[i][0], y, t[i][1]], [t[(i + 1) % 3][0], y + 10, t[(i + 1) % 3][1]]);
+    if (key === 'triTower') { // 한 변 7cm 정삼각형, 층 높이 7cm, 6층 = 42cm
+      var r = 7 / Math.sqrt(3), tt = [0, 1, 2].map(function (k) { var a = Math.PI / 2 + k * 2 * Math.PI / 3; return [r * Math.cos(a), r * Math.sin(a)]; });
+      for (y = 0; y <= 42; y += 7) for (i = 0; i < 3; i++) B.e([tt[i][0], y, tt[i][1]], [tt[(i + 1) % 3][0], y, tt[(i + 1) % 3][1]]);
+      for (y = 0; y < 42; y += 7) for (i = 0; i < 3; i++) {
+        B.e([tt[i][0], y, tt[i][1]], [tt[i][0], y + 7, tt[i][1]]);
+        B.e([tt[i][0], y, tt[i][1]], [tt[(i + 1) % 3][0], y + 7, tt[(i + 1) % 3][1]]);
       }
     }
     return B.done();
@@ -1649,7 +1657,7 @@ var $$ = function(s){return Array.prototype.slice.call(document.querySelectorAll
 function store(k,v){try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v);}catch(e){return null;}}
 
 /* ---------- 설정 ---------- */
-var CFG_DEFAULT={gap:40,towerH:40,maxPipes:60,maxPorts:8,grid:5,showEx:1,tension:2,comp:4,buckleB:400,bagG:20,bottleG:520,bottles:6,planar2D:0};
+var CFG_DEFAULT={gap:40,towerH:40,maxPipes:60,maxPorts:8,kit:[10,7,6,5,3],kitTol:0.6,grid:5,showEx:1,tension:2,comp:4,buckleB:400,bagG:20,bottleG:520,bottles:6,planar2D:0};
 var CFG=Object.assign({},CFG_DEFAULT);
 try{var cs=JSON.parse(store('truss.cfg')||'null'); if(cs) Object.assign(CFG,cs);}catch(e){}
 
@@ -1732,8 +1740,28 @@ var M={
   plate:new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:.7}),
   bottle:new THREE.MeshLambertMaterial({color:0x7cc4ff,transparent:true,opacity:.8})
 };
-var LEN_COLORS=[[5.5,0xe0b000,'~5cm'],[10.5,0x2b8a3e,'~10cm'],[15.5,0x2f5d8a,'~15cm'],[20.5,0xc2255c,'~20cm'],[25.5,0x7048b6,'~25cm'],[30.5,0xd4480c,'~30cm'],[1e9,0x6d675c,'30cm 초과']];
-function lenColor(L){for(var i=0;i<LEN_COLORS.length;i++) if(L<=LEN_COLORS[i][0]) return LEN_COLORS[i][1]; return 0x7b8494;}
+/* 4D프레임 수학창의교구(中): 10cm(주황) 7cm(주황) 6cm(노랑·파랑·초록) 5cm(검정·흰색) 3cm(노랑·파랑) */
+var KIT_COLOR={10:0xf08c2e,7:0xf6b26b,6:0x3fa34d,5:0x34312c,3:0x3a7bd5}, KIT_NAME={10:'주황',7:'주황',6:'노랑·파랑·초록',5:'검정·흰색',3:'노랑·파랑'};
+var EXTRA_COLORS=[0x7048b6,0x0b8a7a,0xc2255c,0x8b6f22];
+function kitColor(k){ if(KIT_COLOR[k]!=null) return KIT_COLOR[k]; var i=CFG.kit.indexOf(k); return EXTRA_COLORS[(i<0?0:i)%EXTRA_COLORS.length]; }
+function kitName(k){ return KIT_NAME[k]||''; }
+/* 길이 L에 맞는 교구 파이프 (파이프가 조금 휘므로 ±kitTol cm 허용) */
+function kitOf(L){ var best=null,bd=Infinity; CFG.kit.forEach(function(k){var d=Math.abs(k-L); if(d<bd){bd=d;best=k;}}); return bd<=CFG.kitTol+1e-9?best:null; }
+function lenColor(L){ var k=kitOf(L); return k!=null?kitColor(k):0x9a9488; }
+function hex(c){ return '#'+c.toString(16).padStart(6,'0'); }
+/* 연결발 이름: 2개가 일직선이면 일자발, 7개면 8발 */
+function connName(n,deg){
+  if(deg<=1) return '파이프 끝 (연결발 없음)';
+  if(deg===2){
+    var ms=S.members.filter(function(m){return m.a===n.id||m.b===n.id;});
+    var v=ms.map(function(m){var o=nodeById(m.a===n.id?m.b:m.a); return [o.x-n.x,o.y-n.y,o.z-n.z];});
+    var c=(v[0][0]*v[1][0]+v[0][1]*v[1][1]+v[0][2]*v[1][2])/(Math.hypot.apply(null,v[0])*Math.hypot.apply(null,v[1])||1);
+    return c<-0.98?'일자발':'3발 (1개 비움)';
+  }
+  if(deg===7) return '8발 (1개 비움)';
+  if([3,4,5,6,8].indexOf(deg)>=0) return deg+'발';
+  return deg+'발 (교구에 없음)';
+}
 
 var cylGeo=new THREE.CylinderGeometry(1,1,1,12);
 var sphGeo=new THREE.SphereGeometry(1,16,12);
@@ -1973,14 +2001,14 @@ function drawLabels(){
   function L(pos,text,cls){var p=project(pos); if(!p.vis) return; html.push('<div class="lbl '+(cls||'')+'" style="left:'+p.x.toFixed(1)+'px;top:'+p.y.toFixed(1)+'px">'+text+'</div>');}
   if(S.mission==='bridge') L(new THREE.Vector3(0,-2,32),'간격 '+CFG.gap+' cm','soft');
   else if(S.mission==='tower') L(new THREE.Vector3(25,CFG.towerH,25),'목표 높이 '+CFG.towerH+' cm','soft');
-  if($('#showLen').checked) S.members.forEach(function(m){var a=nodeById(m.a),b=nodeById(m.b); L(new THREE.Vector3((a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2),fmtLen(memberLen(m)),'soft');});
+  if($('#showLen').checked) S.members.forEach(function(m){var a=nodeById(m.a),b=nodeById(m.b); L(new THREE.Vector3((a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2),fmtLen(memberLen(m))+(kitOf(memberLen(m))==null?' ✗':''),'soft');});
   if(SIM){
     SIM.failed.forEach(function(i){var mm=S.members[i], f=SIM.fail[i]; if(!mm) return; simPos(mm.a,tmpA); simPos(mm.b,tmpB); L(tmpA.clone().add(tmpB).multiplyScalar(0.5).add(new THREE.Vector3(0,2.5,0)),f.type==='buckle'?'💥 휘어짐':'💥 연결발 빠짐','crit');});
     if(!SIM.P&&SIM.maxUi>=0&&SIM.maxU>0.05){var mu=S.members[SIM.maxUi]; simPos(mu.a,tmpA); simPos(mu.b,tmpB); L(tmpA.clone().add(tmpB).multiplyScalar(0.5).add(new THREE.Vector3(0,2.5,0)),'한계의 '+Math.round(SIM.maxU*100)+'%');}
     labelBox.innerHTML=html.join(''); return;
   }
   if(R&&R.stable&&R.critical>=0&&isFinite(R.Pmax)){var m=S.members[R.critical]; if(m){var a2=nodeById(m.a),b2=nodeById(m.b); L(new THREE.Vector3((a2.x+b2.x)/2,(a2.y+b2.y)/2+2,(a2.z+b2.z)/2),'⚡ 가장 약한 곳','crit');}}
-  if(tool==='build'&&chain&&hover.point){var s=chainPos(); var len=Math.hypot(hover.point.x-s.x,hover.point.y-s.y,hover.point.z-s.z); if(len>0) L(new THREE.Vector3((s.x+hover.point.x)/2,(s.y+hover.point.y)/2,(s.z+hover.point.z)/2),fmtLen(len));}
+  if(tool==='build'&&chain&&hover.point){var s=chainPos(); var len=Math.hypot(hover.point.x-s.x,hover.point.y-s.y,hover.point.z-s.z); if(len>0) L(new THREE.Vector3((s.x+hover.point.x)/2,(s.y+hover.point.y)/2,(s.z+hover.point.z)/2),fmtLen(len)+(kitOf(len)==null?' · 교구에 없는 길이':' 파이프'),kitOf(len)==null?'crit':'');}
   if(hover.point&&(tool==='build'||tool==='move')) L(new THREE.Vector3(hover.point.x,hover.point.y+2.2,hover.point.z),'높이 '+fx(hover.point.y)+'cm','soft');
   labelBox.innerHTML=html.join('');
 }
@@ -2039,7 +2067,7 @@ function updateGhost(){
     var sh=stampShape(hover.point), arr=[];
     sh.edges.forEach(function(e){var a=sh.pts[e[0]],b=sh.pts[e[1]]; arr.push(a.x,a.y,a.z,b.x,b.y,b.z);});
     setPos(stampGhost,arr);
-    stampGhost.material.color.setHex(sh.pts.every(pointValid)?0x2f5d8a:0xc2255c); stampGhost.visible=true;
+    stampGhost.material.color.setHex((sh.pts.every(pointValid)&&stampKitOK(sh))?0x2f5d8a:0xc2255c); stampGhost.visible=true;
     ghostDot.material=M.ghost; ghostDot.position.set(hover.point.x,hover.point.y,hover.point.z); ghostDot.visible=true; return;
   }
   var mat=hover.valid?M.ghost:M.ghostBad;
@@ -2066,7 +2094,8 @@ function refreshCands(){
   if(!s) return;
   for(var i=-1;i<=1;i++)for(var j=-1;j<=1;j++)for(var k=-1;k<=1;k++){
     var n=Math.abs(i)+Math.abs(j)+Math.abs(k); if(n===0||n===3) continue;
-    var p={x:r3(s.x+i*reach),y:r3(s.y+j*reach),z:r3(s.z+k*reach)};
+    var st=n===1?reach:diagStep(reach); if(!st) continue;
+    var p={x:r3(s.x+i*st),y:r3(s.y+j*st),z:r3(s.z+k*st)};
     if(!pointValid(p)||!candLimit(p)) continue;
     var ex=findNodeAt(p); if(ex&&chain.id&&hasMember(chain.id,ex.id)) continue;
     var m=new THREE.Mesh(sphGeo,ex?candMatJoin:candMat); m.scale.setScalar(ex?1.6:1.15); m.position.set(p.x,p.y,p.z); m.userData={p:p,join:!!ex,base:ex?candMatJoin:candMat};
@@ -2075,7 +2104,8 @@ function refreshCands(){
     candGroup.add(ln);
   }
 }
-$$('#reachSeg button').forEach(function(b){b.onclick=function(){reach=+b.dataset.v; $$('#reachSeg button').forEach(function(x){x.classList.toggle('on',x===b);}); refreshCands();};});
+/* 대각선으로 뻗을 때 한 칸 간격: a×√2 가 고른 파이프 길이와 맞도록 (0.5cm 단위) */
+function diagStep(r){ var a=Math.round(r/Math.SQRT2*2)/2; return (a>0&&Math.abs(a*Math.SQRT2-r)<=CFG.kitTol)?a:0; }
 $('#showCands').onchange=function(){refreshCands();};
 
 /* ---------- 높이 보조선 ---------- */
@@ -2131,6 +2161,7 @@ function onClick(btn){
     if(!hover.point) return;
     var sh=stampShape(hover.point);
     if(!sh.pts.every(pointValid)){flash('도형이 책상 속이나 바닥 아래로 들어가요. 다른 곳을 골라 주세요.');return;}
+    if(!stampKitOK(sh)){flash('이 크기로는 대각선이 '+fmtLen(stampSize*Math.SQRT2)+'라서 교구에 없는 파이프가 필요해요. 한 변 5cm(대각선 7cm)나 7cm(대각선 10cm)를 골라 보세요.');return;}
     snap();
     var ids=sh.pts.map(function(p){return addNode(p);});
     sh.edges.forEach(function(e){var a=ids[e[0]],b=ids[e[1]]; if(a!==b&&!hasMember(a,b)) S.members.push({id:S.mid++,a:a,b:b});});
@@ -2207,9 +2238,11 @@ function updatePanels(){
     C.push([top>=CFG.towerH-1e-6,'높이가 '+CFG.towerH+'cm 이상이다 (지금 '+fx(top)+'cm)']);
     C.push([lp.length>0&&lp.every(function(n){return Math.abs(n.y-top)<1e-3;}),'추를 꼭대기에 '+(isHang()?'건다':'올린다')]);
   }
+  var offN0=S.members.filter(function(m){return kitOf(memberLen(m))==null;}).length;
+  C.push([pipes>0&&offN0===0,'모든 파이프가 교구 길이('+CFG.kit.slice().sort(function(a,b){return b-a;}).join('·')+'cm)다'+(offN0?' (안 맞는 것 '+offN0+'개)':'')]);
   C.push([R&&!R.empty&&R.stable===true,'흔들리지 않는다 (안정한 구조)']);
   C.push([pipes>0&&pipes<=CFG.maxPipes,'파이프 '+CFG.maxPipes+'개 이하 (지금 '+pipes+'개)']);
-  C.push([maxDeg<=CFG.maxPorts,'연결발 구멍은 '+CFG.maxPorts+'구 이하 (가장 많은 곳 '+maxDeg+'구)']);
+  C.push([maxDeg<=CFG.maxPorts,'연결발은 '+CFG.maxPorts+'발 이하 (가장 많은 곳 '+maxDeg+'발)']);
   if(!pipes) C=C.map(function(c){return [false,c[1]];});
   $('#checks').innerHTML=C.map(function(c){return '<li class="'+(c[0]?'ok':'no')+'"><b>'+(c[0]?'✓':'✗')+'</b><span>'+c[1]+'</span></li>';}).join('');
   // 예측
@@ -2225,15 +2258,17 @@ function updatePanels(){
     cc.style.display='block';
     $('#critText').innerHTML='길이 <b>'+fmtLen(f.L)+'</b> 파이프 · <b style="color:'+(f.N<0?'var(--comp)':'var(--tens)')+'">'+(f.N<0?'압축(눌림)':'인장(당김)')+'</b><br>건 무게의 <b>'+Math.abs(f.N).toFixed(2)+'배</b> 힘을 받아요.'+(f.N<0?'<br><span class="muted">짧게 하거나 중간을 잡아 주면 덜 휘어요.</span>':'<br><span class="muted">연결발이 빠지지 않게 단단히 끼우세요.</span>');
   }
-  // 재료 목록
-  var lens={}; S.members.forEach(function(m){var L=Math.round(memberLen(m)*10)/10; lens[L]=(lens[L]||0)+1;});
-  var keys=Object.keys(lens).map(Number).sort(function(a,b){return a-b;});
-  var tot=0; keys.forEach(function(k){tot+=k*lens[k];});
-  $('#bomPipes').innerHTML='<tr><td><b>파이프 (길이별)</b></td><td><b>'+pipes+'개</b></td></tr>'+(keys.length?keys.map(function(k){return '<tr><td><i class="sw" style="background:#'+lenColor(k).toString(16).padStart(6,'0')+'"></i>'+fmtLen(k)+'</td><td>'+lens[k]+'개</td></tr>';}).join(''):'<tr><td class="muted">아직 없음</td><td></td></tr>');
-  $('#bomTotal').textContent=pipes?'파이프 길이 합계 '+fmtLen(tot):'';
-  var dg={}; act.forEach(function(n){dg[d[n.id]]=(dg[d[n.id]]||0)+1;});
-  var dk=Object.keys(dg).map(Number).sort(function(a,b){return a-b;});
-  $('#bomJoints').innerHTML='<tr><td><b>연결발 (구멍 수별)</b></td><td><b>'+act.length+'개</b></td></tr>'+(dk.length?dk.map(function(k){return '<tr><td>'+k+'구 연결발'+(k>CFG.maxPorts?' <span style="color:var(--bad)">(없음)</span>':'')+'</td><td>'+dg[k]+'개</td></tr>';}).join(''):'<tr><td class="muted">아직 없음</td><td></td></tr>');
+  // 재료 목록 (교구 규격 기준)
+  var kitCount={}, offs={}, tot=0, offN=0;
+  S.members.forEach(function(m){var L=memberLen(m); tot+=L; var k=kitOf(L); if(k!=null) kitCount[k]=(kitCount[k]||0)+1; else {var r=Math.round(L*10)/10; offs[r]=(offs[r]||0)+1; offN++;}});
+  var rowsP=CFG.kit.slice().sort(function(a,b){return b-a;}).filter(function(k){return kitCount[k];}).map(function(k){return '<tr><td><i class="sw" style="background:'+hex(kitColor(k))+'"></i>'+k+'cm <span class="muted">'+kitName(k)+'</span></td><td>'+kitCount[k]+'개</td></tr>';});
+  Object.keys(offs).sort(function(a,b){return a-b;}).forEach(function(r){rowsP.push('<tr><td style="color:var(--bad)"><i class="sw" style="background:#9a9488"></i>'+fmtLen(+r)+' · 교구에 없음</td><td style="color:var(--bad)">'+offs[r]+'개</td></tr>');});
+  $('#bomPipes').innerHTML='<tr><td><b>파이프</b></td><td><b>'+pipes+'개</b></td></tr>'+(rowsP.length?rowsP.join(''):'<tr><td class="muted">아직 없음</td><td></td></tr>');
+  $('#bomTotal').textContent=pipes?('파이프 길이 합계 '+fmtLen(tot)+(offN?' · 교구에 없는 길이 '+offN+'개':'')):'';
+  var cn={}; act.forEach(function(n){var c=connName(n,d[n.id]); cn[c]=(cn[c]||0)+1;});
+  var order=['일자발','3발','4발','5발','6발','8발'];
+  var ck=Object.keys(cn).sort(function(a,b){var ia=order.indexOf(a.split(' ')[0]),ib=order.indexOf(b.split(' ')[0]); return (ia<0?99:ia)-(ib<0?99:ib);});
+  $('#bomJoints').innerHTML='<tr><td><b>연결발</b></td><td><b>'+act.filter(function(n){return d[n.id]>1;}).length+'개</b></td></tr>'+(ck.length?ck.map(function(k){var bad=k.indexOf('교구에 없음')>=0; return '<tr><td'+(bad?' style="color:var(--bad)"':'')+'>'+k+'</td><td>'+cn[k]+'개</td></tr>';}).join(''):'<tr><td class="muted">아직 없음</td><td></td></tr>');
   // 수학
   var j=act.length, s=act.filter(isSupport).length, need=3*j, have=pipes+3*s;
   var mc=$('#mathCard');
@@ -2296,7 +2331,7 @@ function setMission(m,keep){
 }
 $$('#missionSeg button').forEach(function(b){b.onclick=function(){setMission(b.dataset.m);};});
 function syncLoadSeg(){var lm=isHang()?'hang':'place'; $$('#loadSeg button').forEach(function(b){b.classList.toggle('on',b.dataset.l===lm);});}
-$$('#loadSeg button').forEach(function(b){b.onclick=function(){ if((isHang()?'hang':'place')===b.dataset.l) return; snap(); S.loadMode=b.dataset.l; S.loads=[]; changed(); flash(b.dataset.l==='hang'?'S자 고리로 봉지를 연결발 아래에 걸어요.':'받침판을 연결발 위에 얹고 그 위에 추를 올려요.'); };});
+$$('#loadSeg button').forEach(function(b){b.onclick=function(){ if((isHang()?'hang':'place')===b.dataset.l) return; snap(); S.loadMode=b.dataset.l; S.loads=[]; changed(); flash(b.dataset.l==='hang'?'C자 고리로 봉지를 연결발 아래에 걸어요.':'받침판을 연결발 위에 얹고 그 위에 추를 올려요.'); };});
 
 /* ---------- 상단 버튼 ---------- */
 $('#undo').onclick=undo; $('#redo').onclick=redo;
@@ -2335,7 +2370,7 @@ $('#png').onclick=function(){
   g.fillStyle='#1d2433'; g.font='bold 20px "Malgun Gothic",sans-serif'; g.fillText((S.team||'모둠')+' 설계도',x,y); y+=28;
   g.font='15px "Malgun Gothic",sans-serif'; g.fillStyle='#5b6577';
   g.fillText('미션: '+(S.mission==='bridge'?'A. 책상 사이 다리 (간격 '+CFG.gap+'cm)':S.mission==='free'?'C. 자유 구조':'B. 탑 (높이 '+CFG.towerH+'cm 이상)'),x,y); y+=26;
-  g.fillText('추 다는 방식: '+(isHang()?'걸기 (S자 고리 + 봉지)':'올리기 (받침판 위)'),x,y); y+=26;
+  g.fillText('추 다는 방식: '+(isHang()?'걸기 (C자 고리 + 봉지)':'올리기 (받침판 위)'),x,y); y+=26;
   var lines=[];
   lines.push('파이프: '+S.members.length+'개');
   $$('#bomPipes tr').slice(1).forEach(function(tr){var t=tr.innerText.replace(/\s+/g,' ').trim(); if(t&&t!=='아직 없음') lines.push('   '+t);});
@@ -2350,12 +2385,13 @@ $('#png').onclick=function(){
 };
 
 /* ---------- 설정 ---------- */
-function fillSettings(){ $('#cGap').value=CFG.gap; $('#cH').value=CFG.towerH; $('#cMax').value=CFG.maxPipes; $('#cPorts').value=CFG.maxPorts; $('#cGrid').value=String(CFG.grid); $('#cEx').value=String(CFG.showEx); $('#cT').value=CFG.tension; $('#cC').value=CFG.comp; $('#cB').value=CFG.buckleB; $('#cBag').value=CFG.bagG; $('#cBot').value=CFG.bottleG; $('#cBots').value=CFG.bottles; $('#cPlanar').value=String(CFG.planar2D||0); }
+function fillSettings(){ $('#cGap').value=CFG.gap; $('#cH').value=CFG.towerH; $('#cMax').value=CFG.maxPipes; $('#cPorts').value=CFG.maxPorts; $('#cKit').value=CFG.kit.join(','); $('#cGrid').value=String(CFG.grid); $('#cEx').value=String(CFG.showEx); $('#cT').value=CFG.tension; $('#cC').value=CFG.comp; $('#cB').value=CFG.buckleB; $('#cBag').value=CFG.bagG; $('#cBot').value=CFG.bottleG; $('#cBots').value=CFG.bottles; $('#cPlanar').value=String(CFG.planar2D||0); }
 $('#settingsBtn').onclick=function(){fillSettings(); $('#setDlg').showModal();};
 $('#setReset').onclick=function(){CFG=Object.assign({},CFG_DEFAULT); fillSettings();};
 $('#setOk').onclick=function(){
   function num(id,def){var v=parseFloat($(id).value); return isFinite(v)&&v>0?v:def;}
   CFG.gap=num('#cGap',40); CFG.towerH=num('#cH',40); CFG.maxPipes=Math.round(num('#cMax',60)); CFG.maxPorts=Math.round(num('#cPorts',8));
+  (function(){var ks=String($('#cKit').value).split(/[^0-9.]+/).map(Number).filter(function(v){return v>0&&v<=100;}); ks=ks.filter(function(v,i){return ks.indexOf(v)===i;}); CFG.kit=ks.length?ks:CFG_DEFAULT.kit.slice();})(); renderLenSegs();
   CFG.grid=parseFloat($('#cGrid').value)||5; CFG.planar2D=+$('#cPlanar').value||0; CFG.showEx=+$('#cEx').value; CFG.tension=num('#cT',2); CFG.comp=num('#cC',4); CFG.buckleB=num('#cB',400); CFG.bagG=Math.max(0,parseFloat($('#cBag').value)||0); CFG.bottleG=num('#cBot',520); CFG.bottles=Math.max(0,Math.round(parseFloat($('#cBots').value)||0));
   store('truss.cfg',JSON.stringify(CFG)); $('#setDlg').close(); applyCfg(); buildEnv(); buildPlane(); changed();
 };
@@ -2638,8 +2674,21 @@ function stampShape(o){
   return {pts:P,edges:E};
 }
 $$('#shapeSeg .shape').forEach(function(b){b.onclick=function(){stampKind=b.dataset.s; $$('#shapeSeg .shape').forEach(function(x){x.classList.toggle('on',x===b);}); if(stampKind!=='tri'&&stampKind!=='sq'&&plane!=='XZ'){setPlane('XZ',S.mission==='bridge'?0:0); flash('입체 도형은 바닥판에 놓아요. 위층에 쌓으려면 판 높이를 올리거나 연결발을 클릭하세요.');} updateGhost();};});
-$$('#sizeSeg button').forEach(function(b){b.onclick=function(){stampSize=+b.dataset.v; $$('#sizeSeg button').forEach(function(x){x.classList.toggle('on',x===b);}); updateGhost();};});
-$$('#dupSeg button').forEach(function(b){b.onclick=function(){dupW=+b.dataset.v; $$('#dupSeg button').forEach(function(x){x.classList.toggle('on',x===b);});};});
+function stampKitOK(sh){ return sh.edges.every(function(e){var a=sh.pts[e[0]],b=sh.pts[e[1]]; return kitOf(Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z))!=null;}); }
+/* 길이 고르기 버튼(뻗는 길이 · 도형 한 변 · 뒤로 붙이는 간격)을 교구 파이프 길이로 만든다 */
+function renderLenSegs(){
+  var ks=CFG.kit.slice().sort(function(a,b){return a-b;}), big=ks[ks.length-1];
+  if(ks.indexOf(reach)<0) reach=big; if(ks.indexOf(stampSize)<0) stampSize=big; if(ks.indexOf(dupW)<0) dupW=big;
+  function seg(id,cur,set){
+    var el=$('#'+id); el.className='minis c'+Math.min(6,Math.max(3,ks.length));
+    el.innerHTML=ks.map(function(k){return '<button class="mini'+(k===cur?' on':'')+'" data-v="'+k+'" title="'+k+'cm '+kitName(k)+'"><i class="dot" style="background:'+hex(kitColor(k))+'"></i>'+k+'</button>';}).join('');
+    $$('#'+id+' button').forEach(function(b){b.onclick=function(){set(+b.dataset.v); $$('#'+id+' button').forEach(function(x){x.classList.toggle('on',x===b);});};});
+  }
+  seg('reachSeg',reach,function(v){reach=v; candKey='dirty'; refreshCands();});
+  seg('sizeSeg',stampSize,function(v){stampSize=v; updateGhost();});
+  seg('dupSeg',dupW,function(v){dupW=v;});
+}
+renderLenSegs();
 $('#dupBtn').onclick=function(){
   if(SIM){flash('실험 중에는 고칠 수 없어요.');return;}
   if(!S.members.length){flash('먼저 정면판에 트러스 한 장을 그려 주세요.');return;}
