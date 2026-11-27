@@ -235,7 +235,7 @@ a.yt{display:inline-flex;align-items:center;gap:10px;background:#ff0033;color:#f
 </section>
 
 <!-- 8-2. 어느 쪽인지 알아내기 -->
-<section class="slide" data-note="<b>판단법 (1분 30초)</b> '이 파이프를 빼면 양 끝 연결발이 어떻게 될까?' 밑변을 빼면 두 발이 벌어지며 주저앉습니다(양 끝이 멀어짐) → 밑변은 붙잡고 당기던 것 = 인장. 빗변을 빼면 꼭대기가 쓰러져 양 끝이 가까워집니다 → 빗변은 밀어서 받치던 것 = 압축. 두 번째 방법: 끈으로 바꿔도 버티면 인장, 무너지면 압축(끈은 당기기만 견딤). 활동지 1-4번을 이 방법으로 풀게 합니다.">
+<section class="slide" data-note="<b>판단법 (1분 30초)</b> '이 파이프를 빼면 양 끝 연결발이 어떻게 될까?' 밑변을 빼면 두 발이 벌어지며 주저앉습니다(양 끝이 멀어짐) → 밑변은 붙잡고 당기던 것 = 인장. 빗변을 빼면 꼭대기가 쓰러져 양 끝이 가까워집니다 → 빗변은 밀어서 받치던 것 = 압축. 두 번째 방법: 끈으로 바꿔도 버티면 인장, 무너지면 압축(끈은 당기기만 견딤). 다음 슬라이드에서 파이프를 직접 눌러 확인합니다.">
   <div class="kicker">판단하는 방법</div>
   <h2>어느 쪽일까? <span style="color:var(--accent)">빼 보면 안다</span></h2>
   <div style="display:grid;grid-template-columns:760px 1fr;gap:44px;align-items:start">
@@ -264,9 +264,9 @@ a.yt{display:inline-flex;align-items:center;gap:10px;background:#ff0033;color:#f
   </div>
 </section>
 
-<!-- 8-3. 활동지 1-4 함께 풀기 -->
-<section class="slide" data-note="<b>활동지 1-4 함께 풀기 (2분)</b> 먼저 학생들에게 ㉠~㉤가 압축일지 인장일지 예상하게 한 뒤, 파이프를 하나씩 눌러 확인합니다. 누르면 그 파이프를 뺀 것처럼 다리가 무너지는 모습이 나오고, 양 끝이 가까워지면 압축, 멀어지면 인장으로 판정됩니다. 가운데 회색 빗변 2개는 오늘은 다루지 않습니다(어려운 내용: 추를 위에서 매달고 있는 인장). 힌트: 다리가 처지면 윗부분은 눌리고 아랫부분은 늘어난다(지우개를 구부려 보이기).">
-  <div class="kicker">활동지 1-4 함께 풀기</div>
+<!-- 8-3. 눌러서 확인 -->
+<section class="slide" data-note="<b>눌러서 확인 (2분)</b> 먼저 학생들에게 ㉠~㉤가 압축일지 인장일지 예상하게 한 뒤, 파이프를 하나씩 눌러 확인합니다. 누르면 그 파이프를 뺀 것처럼 다리가 무너지는 모습이 나오고, 양 끝이 가까워지면 압축, 멀어지면 인장으로 판정됩니다. 가운데 회색 빗변 2개는 오늘은 다루지 않습니다(어려운 내용: 추를 위에서 매달고 있는 인장). 힌트: 다리가 처지면 윗부분은 눌리고 아랫부분은 늘어난다(지우개를 구부려 보이기).">
+  <div class="kicker">직접 눌러 보기</div>
   <h2>눌러서 확인! 압축일까, 인장일까?</h2>
   <div style="display:grid;grid-template-columns:900px 1fr;gap:36px;align-items:start">
     <div class="card" style="padding:16px 20px;text-align:center">
@@ -835,7 +835,7 @@ function rmPlay(st){ cancelAnimationFrame(rmAnim); rmState=st; rmK=0; drawRM(); 
 $('#rmBase').onclick=function(){rmPlay('base');}; $('#rmLeg').onclick=function(){rmPlay('leg');}; $('#rmReset').onclick=function(){rmPlay('none');};
 drawRM();
 
-/* ---------- 8-3. 활동지 1-4 함께 풀기 (쉬움·중간 5개만) ---------- */
+/* ---------- 8-3. 눌러서 확인 (쉬움·중간 5개만) ---------- */
 var Q14={h:Math.sqrt(3)/2};
 Q14.P=[[0,0],[1,0],[2,0],[0.5,Q14.h],[1.5,Q14.h]];
 Q14.M=[{e:[0,1],lab:'㉠'},{e:[1,2],lab:'㉡'},{e:[3,4],lab:'㉢'},{e:[0,3],lab:'㉣'},{e:[4,2],lab:'㉤'},{e:[3,1],lab:null},{e:[1,4],lab:null}];
