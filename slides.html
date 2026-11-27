@@ -264,6 +264,31 @@ a.yt{display:inline-flex;align-items:center;gap:10px;background:#ff0033;color:#f
   </div>
 </section>
 
+<!-- 8-3. 활동지 1-4 함께 풀기 -->
+<section class="slide" data-note="<b>활동지 1-4 함께 풀기 (2분)</b> 먼저 학생들에게 ㉠~㉤가 압축일지 인장일지 예상하게 한 뒤, 파이프를 하나씩 눌러 확인합니다. 누르면 그 파이프를 뺀 것처럼 다리가 무너지는 모습이 나오고, 양 끝이 가까워지면 압축, 멀어지면 인장으로 판정됩니다. 가운데 회색 빗변 2개는 오늘은 다루지 않습니다(어려운 내용: 추를 위에서 매달고 있는 인장). 힌트: 다리가 처지면 윗부분은 눌리고 아랫부분은 늘어난다(지우개를 구부려 보이기).">
+  <div class="kicker">활동지 1-4 함께 풀기</div>
+  <h2>눌러서 확인! 압축일까, 인장일까?</h2>
+  <div style="display:grid;grid-template-columns:900px 1fr;gap:36px;align-items:start">
+    <div class="card" style="padding:16px 20px;text-align:center">
+      <svg width="860" height="440" viewBox="0 0 900 460" id="q14Svg"></svg>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:4px"><button class="ui" id="q14All">정답 모두 보기</button><button class="ui" id="q14Reset">↺ 처음으로</button></div>
+      <div id="q14Msg" style="margin-top:12px;font-size:25px;line-height:1.5;min-height:76px"></div>
+    </div>
+    <div>
+      <div class="card" style="padding:20px 24px;margin-bottom:14px">
+        <h3 style="font-size:27px">파이프를 눌러 보세요</h3>
+        <p style="margin:4px 0 0;font-size:23px">그 파이프를 <b>뺀 것처럼</b> 다리가 움직여요<br>양 끝이 <b>가까워지면</b> <span class="c">압축</span> · <b>멀어지면</b> <span class="t">인장</span></p>
+      </div>
+      <table class="t1" id="q14Tbl" style="font-size:25px"></table>
+      <div class="card frag" style="padding:20px 24px;margin-top:14px">
+        <h3 style="font-size:26px">힌트: 지우개를 구부려 보면</h3>
+        <p style="margin:4px 0 0;font-size:23px">다리가 아래로 처지면<br><b>윗부분은 눌리고</b>(<span class="c">압축</span>) <b>아랫부분은 늘어나요</b>(<span class="t">인장</span>)</p>
+      </div>
+      <p class="small" style="margin-top:12px">회색 가운데 빗변 2개는 오늘은 생각하지 않아도 돼요.</p>
+    </div>
+  </div>
+</section>
+
 <!-- 9. 하중은 절점에 -->
 <section class="slide" data-note="<b>거는 위치 (40초)</b> 파이프 한가운데에 추를 걸면 파이프가 휘어 쉽게 부러진다. 연결발(절점)에 걸면 파이프는 눌리거나 당겨지는 힘만 받는다. 그래서 오늘은 반드시 연결발에 고리를 겁니다.">
   <div class="kicker">추를 거는 곳</div>
@@ -809,6 +834,68 @@ function drawRM(){
 function rmPlay(st){ cancelAnimationFrame(rmAnim); rmState=st; rmK=0; drawRM(); if(st==='none') return; var t0=performance.now()+350; (function f(t){rmK=Math.max(0,Math.min(1,(t-t0)/1400)); rmK=rmK*rmK*(3-2*rmK); drawRM(); if(t-t0<1400) rmAnim=requestAnimationFrame(f);})(performance.now()); }
 $('#rmBase').onclick=function(){rmPlay('base');}; $('#rmLeg').onclick=function(){rmPlay('leg');}; $('#rmReset').onclick=function(){rmPlay('none');};
 drawRM();
+
+/* ---------- 8-3. 활동지 1-4 함께 풀기 (쉬움·중간 5개만) ---------- */
+var Q14={h:Math.sqrt(3)/2};
+Q14.P=[[0,0],[1,0],[2,0],[0.5,Q14.h],[1.5,Q14.h]];
+Q14.M=[{e:[0,1],lab:'㉠'},{e:[1,2],lab:'㉡'},{e:[3,4],lab:'㉢'},{e:[0,3],lab:'㉣'},{e:[4,2],lab:'㉤'},{e:[3,1],lab:null},{e:[1,4],lab:null}];
+Q14.N=solve2D(Q14.P,Q14.M.map(function(m){return m.e;}),{0:[1,1],2:[0,1]},{1:[0,-1]});
+Q14.rev={}; Q14.anim=null; Q14.skip=-1; Q14.k=0; Q14.u=null;
+function q14Mech(skip){
+  var P=Q14.P, sup={0:[1,1],2:[0,1]}, idx=[], m=0;
+  P.forEach(function(p,i){var s=sup[i]||[0,0]; idx.push([s[0]?-1:m++, s[1]?-1:m++]);});
+  var K=[]; for(var i=0;i<m;i++) K.push(new Float64Array(m)); var F=new Float64Array(m); F[idx[1][1]]=-1;
+  Q14.M.forEach(function(mm,k){ if(k===skip) return; var a=P[mm.e[0]],b=P[mm.e[1]],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),c=[dx/L,dy/L],ends=[[mm.e[0],1],[mm.e[1],-1]];
+    for(var p=0;p<2;p++)for(var q=0;q<2;q++)for(var r=0;r<2;r++)for(var s=0;s<2;s++){var A=idx[ends[p][0]][r],B=idx[ends[q][0]][s]; if(A<0||B<0) continue; K[A][B]+=ends[p][1]*ends[q][1]/L*c[r]*c[s];}});
+  var sol=TrussCore.solveFP(K,F); if(sol.ok) return null;
+  var w=0; for(var j=0;j<m;j++) w+=sol.mode[j]*F[j]; var sg=w<0?-1:1;
+  var u=P.map(function(p,i){return [idx[i][0]<0?0:sg*sol.mode[idx[i][0]], idx[i][1]<0?0:sg*sol.mode[idx[i][1]]];});
+  var mx=0; u.forEach(function(v){mx=Math.max(mx,Math.hypot(v[0],v[1]));}); u=u.map(function(v){return [v[0]/mx,v[1]/mx];});
+  return u;
+}
+function q14Pos(i){var p=Q14.P[i], a=0.2*Q14.k, u=Q14.u&&Q14.skip>=0?Q14.u[i]:[0,0]; return [150+(p[0]+a*u[0])*300, 340-(p[1]+a*u[1])*300];}
+function drawQ14(){
+  var s=$('#q14Svg'); s.innerHTML='';
+  Q14.M.forEach(function(mm,k){
+    var a=q14Pos(mm.e[0]), b=q14Pos(mm.e[1]);
+    if(k===Q14.skip&&Q14.k>0){ el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#b9b2a4','stroke-width':6,'stroke-dasharray':'12 10'},s); return; }
+    var col=!mm.lab?'#cfc8ba':(Q14.rev[k]?(Q14.rev[k]<0?COMP:TENS):'#3d3a33');
+    bar(s,a,b,col,mm.lab?13:9);
+  });
+  for(var i=0;i<5;i++) joint(s,q14Pos(i),11,'#1f1d1a');
+  support(s,q14Pos(0)); support(s,q14Pos(2),true);
+  var c=q14Pos(1); el('line',{x1:c[0],y1:c[1]+12,x2:c[0],y2:c[1]+52,stroke:'#6b4f1d','stroke-width':4},s);
+  el('rect',{x:c[0]-30,y:c[1]+52,width:60,height:42,rx:8,fill:'#c9a23f',stroke:'#8b6f22','stroke-width':2},s);
+  txt(s,c[0],c[1]+81,'추',{'font-size':24,'font-weight':800,fill:'#fff','text-anchor':'middle'});
+  var off={0:[0,46],1:[0,46],2:[0,-40],3:[-40,-6],4:[40,-6]};
+  Q14.M.forEach(function(mm,k){
+    if(!mm.lab) return;
+    var a=q14Pos(mm.e[0]), b=q14Pos(mm.e[1]), mx=(a[0]+b[0])/2+off[k][0], my=(a[1]+b[1])/2+off[k][1];
+    var g=el('g',{style:'cursor:pointer'},s);
+    el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'transparent','stroke-width':48,'pointer-events':'stroke'},g);
+    el('circle',{cx:mx,cy:my,r:23,fill:'#fff',stroke:Q14.rev[k]?(Q14.rev[k]<0?COMP:TENS):'#8a8478','stroke-width':3},g);
+    txt(g,mx,my+9,mm.lab,{'font-size':26,'font-weight':700,'text-anchor':'middle',fill:INK});
+    if(Q14.rev[k]) txt(g,mx,my+(off[k][1]<0?-34:50),Q14.rev[k]<0?'압축':'인장',{'font-size':22,'font-weight':800,'text-anchor':'middle',fill:Q14.rev[k]<0?COMP:TENS});
+    g.addEventListener('click',function(){q14Try(k);});
+  });
+  var tb=$('#q14Tbl'), row1='<tr><th>파이프</th>', row2='<tr><th>답</th>';
+  Q14.M.forEach(function(mm,k){ if(!mm.lab) return; row1+='<th>'+mm.lab+'</th>'; var r=Q14.rev[k]; row2+='<td style="font-weight:700;color:'+(r?(r<0?COMP:TENS):'#b9b2a4')+'">'+(r?(r<0?'압축':'인장'):'?')+'</td>'; });
+  tb.innerHTML=row1+'</tr>'+row2+'</tr>';
+}
+function q14Try(k){
+  cancelAnimationFrame(Q14.anim); var u=q14Mech(k); if(!u) return;
+  Q14.skip=k; Q14.u=u; var mm=Q14.M[k], a=Q14.P[mm.e[0]], b=Q14.P[mm.e[1]], dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy);
+  var dd=(dx*(u[mm.e[1]][0]-u[mm.e[0]][0])+dy*(u[mm.e[1]][1]-u[mm.e[0]][1]))/L, sign=dd>0?1:-1;
+  $('#q14Msg').innerHTML='<span class="sub">'+mm.lab+' 파이프를 빼 보면…</span>';
+  var t0=performance.now();
+  (function f(t){ var e=t-t0, k1;
+    if(e<1100){k1=e/1100; Q14.k=k1*k1*(3-2*k1);} else if(e<1900){Q14.k=1; if(!Q14.shown){Q14.shown=true; $('#q14Msg').innerHTML=mm.lab+'을(를) 빼면 양 끝이 '+(sign>0?'<b>멀어져요</b> → 붙잡고 당기던 파이프 = <b class="t">인장</b>':'<b>가까워져요</b> → 밀어서 버티던 파이프 = <b class="c">압축</b>');}}
+    else if(e<2500){k1=(e-1900)/600; Q14.k=1-k1*k1*(3-2*k1);} else {Q14.k=0; Q14.skip=-1; Q14.rev[k]=sign; Q14.shown=false; drawQ14(); return;}
+    drawQ14(); Q14.anim=requestAnimationFrame(f); })(t0);
+}
+$('#q14All').onclick=function(){cancelAnimationFrame(Q14.anim); Q14.k=0; Q14.skip=-1; Q14.M.forEach(function(mm,k){ if(mm.lab) Q14.rev[k]=Q14.N[k]<0?-1:1; }); $('#q14Msg').innerHTML='위쪽과 바깥 빗변(㉢㉣㉤)은 <b class="c">압축</b>, 아래쪽(㉠㉡)은 <b class="t">인장</b>'; drawQ14();};
+$('#q14Reset').onclick=function(){cancelAnimationFrame(Q14.anim); Q14.k=0; Q14.skip=-1; Q14.rev={}; $('#q14Msg').innerHTML=''; drawQ14();};
+drawQ14();
 
 /* ---------- 9. 휨 vs 절점 ---------- */
 (function(){
